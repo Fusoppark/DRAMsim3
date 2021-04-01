@@ -6,12 +6,6 @@ void RandomCPU::ClockTick() {
     // Create random CPU requests at full speed
     // this is useful to exploit the parallelism of a DRAM protocol
     // and is also immune to address mapping and scheduling policies
-
-    // get 2 random address
-    
-    // if their rank number is same
-
-    // get COPY operation
     memory_system_.ClockTick();
     if (get_next_) {
         last_addr_ = gen();

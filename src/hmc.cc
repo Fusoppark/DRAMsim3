@@ -2,7 +2,7 @@
 
 namespace dramsim3 {
 
-HMCRequest::HMCRequest(HMCReqType req_type, uint64_t hex_addr, int vault)
+HMCRequest::HMCRequest(HMCReqType req_type, AddressPair hex_addr, int vault)
     : type(req_type), mem_operand(hex_addr), vault(vault) {
     is_write = type >= HMCReqType::WR0 && type <= HMCReqType::P_WR256;
     // given that vaults could be 16 (Gen1) or 32(Gen2), using % 4
@@ -327,7 +327,7 @@ inline void HMCMemorySystem::IterateNextLink() {
     return;
 }
 
-bool HMCMemorySystem::WillAcceptTransaction(uint64_t hex_addr,
+bool HMCMemorySystem::WillAcceptTransaction(AddressPair hex_addr,
                                             bool is_write) const {
     bool insertable = false;
     for (auto link_queue = link_req_queues_.begin();
@@ -340,7 +340,7 @@ bool HMCMemorySystem::WillAcceptTransaction(uint64_t hex_addr,
     return insertable;
 }
 
-bool HMCMemorySystem::AddTransaction(uint64_t hex_addr, bool is_write) {
+bool HMCMemorySystem::AddTransaction(AddressPair hex_addr, bool is_write) {
     // to be compatible with other protocol we have this interface
     // when using this intreface the size of each transaction will be block_size
     HMCReqType req_type;

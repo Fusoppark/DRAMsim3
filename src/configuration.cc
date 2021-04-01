@@ -30,7 +30,7 @@ Config::Config(std::string config_file, std::string out_dir)
     delete (reader_);
 }
 
-Address Config::AddressMapping(uint64_t hex_addr) const {
+Address Config::AddressMapping(AddressPair hex_addr) const {
     hex_addr >>= shift_bits;
     int channel = (hex_addr >> ch_pos) & ch_mask;
     int rank = (hex_addr >> ra_pos) & ra_mask;

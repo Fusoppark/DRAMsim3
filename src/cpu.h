@@ -18,8 +18,8 @@ class CPU {
               std::bind(&CPU::WriteCallBack, this, std::placeholders::_1)),
           clk_(0) {}
     virtual void ClockTick() = 0;
-    void ReadCallBack(uint64_t addr) { return; }
-    void WriteCallBack(uint64_t addr) { return; }
+    void ReadCallBack(AddressPair addr) { return; }
+    void WriteCallBack(AddressPair addr) { return; }
     void PrintStats() { memory_system_.PrintStats(); }
 
    protected:
@@ -33,7 +33,7 @@ class RandomCPU : public CPU {
     void ClockTick() override;
 
    private:
-    uint64_t last_addr_;
+    AddressPair last_addr_;
     bool last_write_ = false;
     std::mt19937_64 gen;
     bool get_next_ = true;
@@ -45,7 +45,7 @@ class StreamCPU : public CPU {
     void ClockTick() override;
 
    private:
-    uint64_t addr_a_, addr_b_, addr_c_, offset_ = 0;
+    AddressPair addr_a_, addr_b_, addr_c_, offset_ = 0;
     std::mt19937_64 gen;
     bool inserted_a_ = false;
     bool inserted_b_ = false;

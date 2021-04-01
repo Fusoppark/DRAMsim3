@@ -37,12 +37,12 @@ void MemorySystem::RegisterCallbacks(
     dram_system_->RegisterCallbacks(read_callback, write_callback);
 }
 
-bool MemorySystem::WillAcceptTransaction(uint64_t hex_addr,
+bool MemorySystem::WillAcceptTransaction(AddressPair hex_addr,
                                          bool is_write) const {
     return dram_system_->WillAcceptTransaction(hex_addr, is_write);
 }
 
-bool MemorySystem::AddTransaction(uint64_t hex_addr, bool is_write) {
+bool MemorySystem::AddTransaction(AddressPair hex_addr, bool is_write) {
     return dram_system_->AddTransaction(hex_addr, is_write);
 }
 

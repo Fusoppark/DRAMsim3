@@ -42,7 +42,7 @@ Controller::Controller(int channel, const Config &config, const Timing &timing)
 #endif  // CMD_TRACE
 }
 
-std::pair<uint64_t, int> Controller::ReturnDoneTrans(uint64_t clk) {
+std::pair<AddressPair, int> Controller::ReturnDoneTrans(uint64_t clk) {
     auto it = return_queue_.begin();
     while (it != return_queue_.end()) {
         if (clk >= it->complete_cycle) {
@@ -148,7 +148,7 @@ void Controller::ClockTick() {
     return;
 }
 
-bool Controller::WillAcceptTransaction(uint64_t hex_addr, bool is_write) const {
+bool Controller::WillAcceptTransaction(AddressPair hex_addr, bool is_write) const {
     if (is_unified_queue_) {
         return unified_queue_.size() < unified_queue_.capacity();
     } else if (!is_write) {

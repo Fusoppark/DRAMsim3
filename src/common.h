@@ -7,6 +7,63 @@
 
 namespace dramsim3 {
 
+// RowClone added
+    class AddressPair {
+    public:
+        uint64_t src_addr, dest_addr;
+
+        AddressPair(const uint64_t src_addr, const uint64_t dest_addr)
+                :src_addr(src_addr), dest_addr(dest_addr) {}
+
+        AddressPair(const uint64_t src_addr): src_addr(src_addr), dest_addr(0) {}
+        AddressPair() :src_addr(0), dest_addr(0) {}
+
+        operator uint64_t() const {
+            return src_addr;
+        }
+
+        AddressPair& operator= (const AddressPair &a) {
+            src_addr = a.src_addr;
+            dest_addr = a.dest_addr;
+            return *this;
+        }
+
+        AddressPair operator>> (const int a) {
+            return AddressPair(src_addr >> a, dest_addr);
+        }
+
+        AddressPair operator<< (const int a) {
+            return AddressPair(src_addr << a, dest_addr);
+        }
+
+        AddressPair operator>> (const uint64_t a) {
+            return AddressPair(src_addr >> a, dest_addr);
+        }
+
+        AddressPair operator<< (const uint64_t a) {
+            return AddressPair(src_addr << a, dest_addr);
+        }
+
+        AddressPair operator+= (const int a) {
+            src_addr += a;
+            return *this;
+        }
+
+        friend std::istream& operator>>(std::istream& is, AddressPair& addr) {
+            is >> addr.src_addr;
+            return is;
+        }
+
+        AddressPair& operator<<= (const uint64_t a) {
+            src_addr = src_addr << a;
+            return *this;
+        }
+        AddressPair& operator>>= (const uint64_t a) {
+            src_addr = src_addr << a;
+            return *this;
+        }
+    };
+
 struct Address {
     Address()
         : channel(-1), rank(-1), bankgroup(-1), bank(-1), row(-1), column(-1) {}
@@ -32,7 +89,7 @@ struct Address {
     int column;
 };
 
-inline uint32_t ModuloWidth(uint64_t addr, uint32_t bit_width, uint32_t pos) {
+inline uint32_t ModuloWidth(AddressPair addr, uint32_t bit_width, uint32_t pos) {
     addr >>= pos;
     auto store = addr;
     addr >>= bit_width;
@@ -67,7 +124,7 @@ enum class CommandType {
 
 struct Command {
     Command() : cmd_type(CommandType::SIZE), hex_addr(0) {}
-    Command(CommandType cmd_type, const Address& addr, uint64_t hex_addr)
+    Command(CommandType cmd_type, const Address& addr, AddressPair hex_addr)
         : cmd_type(cmd_type), addr(addr), hex_addr(hex_addr) {}
     // Command(const Command& cmd) {}
 
@@ -92,7 +149,7 @@ struct Command {
     }
     CommandType cmd_type;
     Address addr;
-    uint64_t hex_addr;
+    AddressPair hex_addr;
 
     int Channel() const { return addr.channel; }
     int Rank() const { return addr.rank; }
@@ -106,7 +163,7 @@ struct Command {
 
 struct Transaction {
     Transaction() {}
-    Transaction(uint64_t addr, bool is_write)
+    Transaction(AddressPair addr, bool is_write)
         : addr(addr),
           added_cycle(0),
           complete_cycle(0),
@@ -116,7 +173,7 @@ struct Transaction {
           added_cycle(tran.added_cycle),
           complete_cycle(tran.complete_cycle),
           is_write(tran.is_write) {}
-    uint64_t addr;
+    AddressPair addr;
     uint64_t added_cycle;
     uint64_t complete_cycle;
     bool is_write;

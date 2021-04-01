@@ -78,7 +78,7 @@ enum class HMCLinkType { HOST_TO_DEV, DEV_TO_DEV, SIZE };
 
 class HMCRequest {
    public:
-    HMCRequest(HMCReqType req_type, uint64_t hex_addr, int vault);
+    HMCRequest(HMCReqType req_type, AddressPair hex_addr, int vault);
     HMCReqType type;
     uint64_t mem_operand;
     int link;
@@ -114,8 +114,8 @@ class HMCMemorySystem : public BaseDRAMSystem {
     void ClockTick() override;
 
     // had to have 3 insert interfaces cuz HMC is so different...
-    bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const override;
-    bool AddTransaction(uint64_t hex_addr, bool is_write) override;
+    bool WillAcceptTransaction(AddressPair hex_addr, bool is_write) const override;
+    bool AddTransaction(AddressPair hex_addr, bool is_write) override;
     bool InsertReqToLink(HMCRequest* req, int link);
     bool InsertHMCReq(HMCRequest* req);
 

@@ -28,14 +28,14 @@ class Controller {
     Controller(int channel, const Config &config, const Timing &timing);
 #endif  // THERMAL
     void ClockTick();
-    bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;
+    bool WillAcceptTransaction(AddressPair hex_addr, bool is_write) const;
     bool AddTransaction(Transaction trans);
     int QueueUsage() const;
     // Stats output
     void PrintEpochStats();
     void PrintFinalStats();
     void ResetStats() { simple_stats_.Reset(); }
-    std::pair<uint64_t, int> ReturnDoneTrans(uint64_t clock);
+    std::pair<AddressPair, int> ReturnDoneTrans(uint64_t clock);
 
     int channel_id_;
 
@@ -58,8 +58,8 @@ class Controller {
     std::vector<Transaction> write_buffer_;
 
     // transactions that are not completed, use map for convenience
-    std::multimap<uint64_t, Transaction> pending_rd_q_;
-    std::multimap<uint64_t, Transaction> pending_wr_q_;
+    std::multimap<AddressPair, Transaction> pending_rd_q_;
+    std::multimap<AddressPair, Transaction> pending_wr_q_;
 
     // completed transactions
     std::vector<Transaction> return_queue_;

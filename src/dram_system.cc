@@ -28,7 +28,7 @@ BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
 #endif
 }
 
-int BaseDRAMSystem::GetChannel(uint64_t hex_addr) const {
+int BaseDRAMSystem::GetChannel(AddressPair hex_addr) const {
     hex_addr >>= config_.shift_bits;
     return (hex_addr >> config_.ch_pos) & config_.ch_mask;
 }
@@ -119,13 +119,13 @@ JedecDRAMSystem::~JedecDRAMSystem() {
     }
 }
 
-bool JedecDRAMSystem::WillAcceptTransaction(uint64_t hex_addr,
+bool JedecDRAMSystem::WillAcceptTransaction(AddressPair hex_addr,
                                             bool is_write) const {
     int channel = GetChannel(hex_addr);
     return ctrls_[channel]->WillAcceptTransaction(hex_addr, is_write);
 }
 
-bool JedecDRAMSystem::AddTransaction(uint64_t hex_addr, bool is_write) {
+bool JedecDRAMSystem::AddTransaction(AddressPair hex_addr, bool is_write) {
 // Record trace - Record address trace for debugging or other purposes
 #ifdef ADDR_TRACE
     address_trace_ << std::hex << hex_addr << std::dec << " "
@@ -177,7 +177,7 @@ IdealDRAMSystem::IdealDRAMSystem(Config &config, const std::string &output_dir,
 
 IdealDRAMSystem::~IdealDRAMSystem() {}
 
-bool IdealDRAMSystem::AddTransaction(uint64_t hex_addr, bool is_write) {
+bool IdealDRAMSystem::AddTransaction(AddressPair hex_addr, bool is_write) {
     auto trans = Transaction(hex_addr, is_write);
     trans.added_cycle = clk_;
     infinite_buffer_q_.push_back(trans);
