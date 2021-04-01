@@ -37,6 +37,9 @@ class Controller {
     void ResetStats() { simple_stats_.Reset(); }
     std::pair<AddressPair, int> ReturnDoneTrans(uint64_t clock);
 
+    // RowClone added
+    const Config* getConfig();
+
     int channel_id_;
 
    private:

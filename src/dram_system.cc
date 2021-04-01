@@ -93,6 +93,11 @@ void BaseDRAMSystem::RegisterCallbacks(
     write_callback_ = write_callback;
 }
 
+// Row Clone added
+const Config* BaseDRAMSystem::getConfig(){
+    return ctrls_[0]->getConfig();
+}
+
 JedecDRAMSystem::JedecDRAMSystem(Config &config, const std::string &output_dir,
                                  std::function<void(AddressPair)> read_callback,
                                  std::function<void(AddressPair)> write_callback)

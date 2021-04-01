@@ -46,6 +46,11 @@ bool MemorySystem::AddTransaction(AddressPair hex_addr, bool is_write) {
     return dram_system_->AddTransaction(hex_addr, is_write);
 }
 
+// Row Clone Added
+const Config* MemorySystem::getConfig(){
+    return dram_system_->getConfig();
+}
+
 void MemorySystem::PrintStats() const { dram_system_->PrintStats(); }
 
 void MemorySystem::ResetStats() { dram_system_->ResetStats(); }

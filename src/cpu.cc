@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <ctime>
 
 namespace dramsim3 {
 
@@ -11,12 +12,26 @@ void RandomCPU::ClockTick() {
         last_addr_ = gen();
         last_write_ = (gen() % 3 == 0);
     }
+    AddressPair copyAddress = getRandomAddress();
     get_next_ = memory_system_.WillAcceptTransaction(last_addr_, last_write_);
     if (get_next_) {
         memory_system_.AddTransaction(last_addr_, last_write_);
     }
     clk_++;
     return;
+}
+
+AddressPair RandomCPU::getRandomAddress(){
+    uint64_t hex_addr = gen();
+    uint64_t mask = pow(2, conf_->ra_pos) - 1;
+    uint64_t uppermask = 0xffffffffffffffff;
+    uppermask = uppermask >> conf_->ra_pos;
+    uppermask = uppermask << conf_->ra_pos;
+
+    uint64_t src_addr = (hex_addr & uppermask) + (gen() & mask);
+    uint64_t dest_addr = (hex_addr & uppermask) + (gen() & mask);
+
+    return AddressPair(src_addr, dest_addr);
 }
 
 void StreamCPU::ClockTick() {

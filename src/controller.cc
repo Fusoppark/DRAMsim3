@@ -158,6 +158,11 @@ bool Controller::WillAcceptTransaction(AddressPair hex_addr, bool is_write) cons
     }
 }
 
+// Row Clone added
+const Config* Controller::getConfig(){
+    return &config_;
+}
+
 bool Controller::AddTransaction(Transaction trans) {
     trans.added_cycle = clk_;
     simple_stats_.AddValue("interarrival_latency", clk_ - last_trans_clk_);

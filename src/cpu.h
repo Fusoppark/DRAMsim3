@@ -16,7 +16,10 @@ class CPU {
               config_file, output_dir,
               std::bind(&CPU::ReadCallBack, this, std::placeholders::_1),
               std::bind(&CPU::WriteCallBack, this, std::placeholders::_1)),
-          clk_(0) {}
+          clk_(0) 
+          {
+              conf_ = memory_system_.getConfig();
+          }
     virtual void ClockTick() = 0;
     void ReadCallBack(AddressPair addr) { return; }
     void WriteCallBack(AddressPair addr) { return; }
@@ -25,12 +28,16 @@ class CPU {
    protected:
     MemorySystem memory_system_;
     uint64_t clk_;
+    const Config* conf_;
 };
 
 class RandomCPU : public CPU {
    public:
     using CPU::CPU;
     void ClockTick() override;
+
+    // Rowclone added
+    AddressPair getRandomAddress(); // for two same rank address
 
    private:
     AddressPair last_addr_;

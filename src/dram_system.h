@@ -37,6 +37,9 @@ class BaseDRAMSystem {
     std::function<void(AddressPair req_id)> read_callback_, write_callback_;
     static int total_channels_;
 
+    // Row Clone added
+    const Config* getConfig();
+
    protected:
     uint64_t id_;
     uint64_t last_req_clk_;
