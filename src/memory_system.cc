@@ -3,8 +3,8 @@
 namespace dramsim3 {
 MemorySystem::MemorySystem(const std::string &config_file,
                            const std::string &output_dir,
-                           std::function<void(uint64_t)> read_callback,
-                           std::function<void(uint64_t)> write_callback)
+                           std::function<void(AddressPair)> read_callback,
+                           std::function<void(AddressPair)> write_callback)
     : config_(new Config(config_file, output_dir)) {
     // TODO: ideal memory type?
     if (config_->IsHMC()) {
@@ -32,8 +32,8 @@ int MemorySystem::GetBurstLength() const { return config_->BL; }
 int MemorySystem::GetQueueSize() const { return config_->trans_queue_size; }
 
 void MemorySystem::RegisterCallbacks(
-    std::function<void(uint64_t)> read_callback,
-    std::function<void(uint64_t)> write_callback) {
+    std::function<void(AddressPair)> read_callback,
+    std::function<void(AddressPair)> write_callback) {
     dram_system_->RegisterCallbacks(read_callback, write_callback);
 }
 

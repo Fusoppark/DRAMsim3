@@ -9,8 +9,8 @@ namespace dramsim3 {
 int BaseDRAMSystem::total_channels_ = 0;
 
 BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
-                               std::function<void(uint64_t)> read_callback,
-                               std::function<void(uint64_t)> write_callback)
+                               std::function<void(AddressPair)> read_callback,
+                               std::function<void(AddressPair)> write_callback)
     : read_callback_(read_callback),
       write_callback_(write_callback),
       last_req_clk_(0),
@@ -86,16 +86,16 @@ void BaseDRAMSystem::ResetStats() {
 }
 
 void BaseDRAMSystem::RegisterCallbacks(
-    std::function<void(uint64_t)> read_callback,
-    std::function<void(uint64_t)> write_callback) {
+    std::function<void(AddressPair)> read_callback,
+    std::function<void(AddressPair)> write_callback) {
     // TODO this should be propagated to controllers
     read_callback_ = read_callback;
     write_callback_ = write_callback;
 }
 
 JedecDRAMSystem::JedecDRAMSystem(Config &config, const std::string &output_dir,
-                                 std::function<void(uint64_t)> read_callback,
-                                 std::function<void(uint64_t)> write_callback)
+                                 std::function<void(AddressPair)> read_callback,
+                                 std::function<void(AddressPair)> write_callback)
     : BaseDRAMSystem(config, output_dir, read_callback, write_callback) {
     if (config_.IsHMC()) {
         std::cerr << "Initialized a memory system with an HMC config file!"
@@ -170,8 +170,8 @@ void JedecDRAMSystem::ClockTick() {
 }
 
 IdealDRAMSystem::IdealDRAMSystem(Config &config, const std::string &output_dir,
-                                 std::function<void(uint64_t)> read_callback,
-                                 std::function<void(uint64_t)> write_callback)
+                                 std::function<void(AddressPair)> read_callback,
+                                 std::function<void(AddressPair)> write_callback)
     : BaseDRAMSystem(config, output_dir, read_callback, write_callback),
       latency_(config_.ideal_memory_latency) {}
 
