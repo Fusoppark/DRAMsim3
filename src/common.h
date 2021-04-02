@@ -11,7 +11,7 @@ namespace dramsim3 {
     class AddressPair {
     public:
         uint64_t src_addr, dest_addr;
-        bool is_copy = false;
+        bool is_copy;
 
         AddressPair(const uint64_t src_addr, const uint64_t dest_addr)
                 :src_addr(src_addr), dest_addr(dest_addr), is_copy(true) {}

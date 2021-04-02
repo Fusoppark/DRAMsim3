@@ -33,6 +33,7 @@ Controller::Controller(int channel, const Config &config, const Timing &timing)
         read_queue_.reserve(config_.trans_queue_size);
         write_buffer_.reserve(config_.trans_queue_size);
     }
+    copy_queue_.reserve(config_.trans_queue_size);
 
 #ifdef CMD_TRACE
     std::string trace_file_name = config_.output_prefix + "ch_" +
@@ -189,7 +190,6 @@ bool Controller::AddTransaction(Transaction trans) {
 
         // new trans added to copy_queue_
         pending_cp_q_.insert(std::make_pair(trans.addr, trans));
-        std::cout<<trans.addr<<std::endl;
         if(pending_cp_q_.count(trans.addr) == 1){
             copy_queue_.push_back(trans);
         }
