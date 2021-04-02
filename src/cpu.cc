@@ -9,10 +9,14 @@ void RandomCPU::ClockTick() {
     // and is also immune to address mapping and scheduling policies
     memory_system_.ClockTick();
     if (get_next_) {
-        last_addr_ = gen();
-        last_write_ = (gen() % 3 == 0);
+        if(is_copy_){
+            last_addr_ = getRandomAddress();
+        }
+        else{
+            last_addr_ = gen();
+            last_write_ = (gen() % 3 == 0);
+        }
     }
-    AddressPair copyAddress = getRandomAddress();
     get_next_ = memory_system_.WillAcceptTransaction(last_addr_, last_write_);
     if (get_next_) {
         memory_system_.AddTransaction(last_addr_, last_write_);

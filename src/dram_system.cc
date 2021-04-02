@@ -138,6 +138,7 @@ bool JedecDRAMSystem::AddTransaction(AddressPair hex_addr, bool is_write) {
 #endif
 
     int channel = GetChannel(hex_addr);
+    int channel_dest = GetChannel(hex_addr.dest_addr);
     bool ok = ctrls_[channel]->WillAcceptTransaction(hex_addr, is_write);
 
     assert(ok);

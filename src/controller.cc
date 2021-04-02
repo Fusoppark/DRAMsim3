@@ -149,6 +149,11 @@ void Controller::ClockTick() {
 }
 
 bool Controller::WillAcceptTransaction(AddressPair hex_addr, bool is_write) const {
+    // Row Clone added
+    if(hex_addr.is_copy){
+        return copy_queue_.size() < copy_queue_.capacity();
+    }
+
     if (is_unified_queue_) {
         return unified_queue_.size() < unified_queue_.capacity();
     } else if (!is_write) {
@@ -167,8 +172,30 @@ bool Controller::AddTransaction(Transaction trans) {
     trans.added_cycle = clk_;
     simple_stats_.AddValue("interarrival_latency", clk_ - last_trans_clk_);
     last_trans_clk_ = clk_;
+    
+    // RowClone added
+    if(trans.is_copy){ // if the transaction is copy operation
+        if(pending_wr_q_.count(trans.addr) > 0){ // if src_addr write is in pending queue
+            // write that value to dest_addr - change to write(dest_addr)
+            Transaction new_trans = Transaction(trans.addr.dest_addr, true);
+            if(is_unified_queue_){
+                unified_queue_.push_back(new_trans);
+            }
+            else{
+                write_buffer_.push_back(new_trans);
+            }
+            return true;
+        }
 
-    if (trans.is_write) {
+        // new trans added to copy_queue_
+        pending_cp_q_.insert(std::make_pair(trans.addr, trans));
+        std::cout<<trans.addr<<std::endl;
+        if(pending_cp_q_.count(trans.addr) == 1){
+            copy_queue_.push_back(trans);
+        }
+        return true;
+    }
+    else if (trans.is_write) {
         if (pending_wr_q_.count(trans.addr) == 0) {  // can not merge writes
             pending_wr_q_.insert(std::make_pair(trans.addr, trans));
             if (is_unified_queue_) {

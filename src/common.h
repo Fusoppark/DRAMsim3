@@ -11,12 +11,13 @@ namespace dramsim3 {
     class AddressPair {
     public:
         uint64_t src_addr, dest_addr;
+        bool is_copy = false;
 
         AddressPair(const uint64_t src_addr, const uint64_t dest_addr)
-                :src_addr(src_addr), dest_addr(dest_addr) {}
+                :src_addr(src_addr), dest_addr(dest_addr), is_copy(true) {}
 
-        AddressPair(const uint64_t src_addr): src_addr(src_addr), dest_addr(0) {}
-        AddressPair() :src_addr(0), dest_addr(0) {}
+        AddressPair(const uint64_t src_addr): src_addr(src_addr), dest_addr(0), is_copy(false) {}
+        AddressPair() :src_addr(0), dest_addr(0), is_copy(false) {}
 
         operator uint64_t() const {
             return src_addr;
@@ -167,16 +168,21 @@ struct Transaction {
         : addr(addr),
           added_cycle(0),
           complete_cycle(0),
-          is_write(is_write) {}
+          is_write(is_write),
+          is_copy(addr.is_copy) {}
     Transaction(const Transaction& tran)
         : addr(tran.addr),
           added_cycle(tran.added_cycle),
           complete_cycle(tran.complete_cycle),
-          is_write(tran.is_write) {}
+          is_write(tran.is_write),
+          is_copy(tran.is_copy) {}
     AddressPair addr;
     uint64_t added_cycle;
     uint64_t complete_cycle;
     bool is_write;
+
+    // Row Clone added
+    bool is_copy;
 
     friend std::ostream& operator<<(std::ostream& os, const Transaction& trans);
     friend std::istream& operator>>(std::istream& is, Transaction& trans);

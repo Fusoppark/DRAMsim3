@@ -60,6 +60,10 @@ class Controller {
     std::vector<Transaction> read_queue_;
     std::vector<Transaction> write_buffer_;
 
+    // Rowclone added
+    std::vector<Transaction> copy_queue_;
+    std::multimap<AddressPair, Transaction> pending_cp_q_;
+
     // transactions that are not completed, use map for convenience
     std::multimap<AddressPair, Transaction> pending_rd_q_;
     std::multimap<AddressPair, Transaction> pending_wr_q_;

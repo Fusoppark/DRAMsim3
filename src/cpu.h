@@ -28,6 +28,8 @@ class CPU {
    protected:
     MemorySystem memory_system_;
     uint64_t clk_;
+
+    // RowClone added
     const Config* conf_;
 };
 
@@ -44,6 +46,9 @@ class RandomCPU : public CPU {
     bool last_write_ = false;
     std::mt19937_64 gen;
     bool get_next_ = true;
+
+    // RowClone added
+    bool is_copy_ = true;
 };
 
 class StreamCPU : public CPU {
