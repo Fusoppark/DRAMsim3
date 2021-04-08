@@ -21,11 +21,14 @@ class CommandQueue {
     Command GetCommandToIssue();
     Command FinishRefresh();
     void ClockTick() { clk_ += 1; };
-    bool WillAcceptCommand(int rank, int bankgroup, int bank) const;
+    bool WillAcceptCommand(int rank, int bankgroup, int bank, bool additional=0) const;
     bool AddCommand(Command cmd);
     bool QueueEmpty() const;
     int QueueUsage() const;
     std::vector<bool> rank_q_empty;
+
+    // Rowclone added
+    bool DeleteLastCommand(Command cmd);
 
    private:
     bool ArbitratePrecharge(const CMDIterator& cmd_it,

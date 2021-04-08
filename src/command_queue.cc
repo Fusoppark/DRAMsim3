@@ -109,8 +109,11 @@ bool CommandQueue::ArbitratePrecharge(const CMDIterator& cmd_it,
     return false;
 }
 
-bool CommandQueue::WillAcceptCommand(int rank, int bankgroup, int bank) const {
+bool CommandQueue::WillAcceptCommand(int rank, int bankgroup, int bank, bool additional) const {
     int q_idx = GetQueueIndex(rank, bankgroup, bank);
+    if(additional){
+        return queues_[q_idx].size() + 1 < queue_size_;
+    }
     return queues_[q_idx].size() < queue_size_;
 }
 
