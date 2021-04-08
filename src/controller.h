@@ -5,6 +5,7 @@
 #include <map>
 #include <unordered_set>
 #include <vector>
+#include <utility>
 #include "channel_state.h"
 #include "command_queue.h"
 #include "common.h"
@@ -87,6 +88,9 @@ class Controller {
     void IssueCommand(const Command &tmp_cmd);
     Command TransToCommand(const Transaction &trans);
     void UpdateCommandStats(const Command &cmd);
+
+    // rowclone added
+    std::pair<Command, Command> CopyTransToCommand(const Transaction & trans);
 };
 }  // namespace dramsim3
 #endif

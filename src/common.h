@@ -112,8 +112,12 @@ bool DirExist(std::string dir);
 enum class CommandType {
     READ,
     READ_PRECHARGE,
+    READCOPY,
+    READCOPY_PRECHARGE,
     WRITE,
     WRITE_PRECHARGE,
+    WRITECOPY,
+    WRITECOPY_PRECHARGE,
     ACTIVATE,
     PRECHARGE,
     REFRESH_BANK,

@@ -10,7 +10,7 @@ void RandomCPU::ClockTick() {
     memory_system_.ClockTick();
     if (get_next_) {
         if(is_copy_){
-            std::cout<<"copy"<<std::endl;
+            //std::cout<<"copy"<<std::endl;
             last_addr_ = getRandomAddress();
             last_addr_.is_copy = true;
         }

@@ -236,24 +236,42 @@ void Controller::ScheduleTransaction() {
         }
     }
 
+
+    // row clone added (about copy_queue_)
     std::vector<Transaction> &queue =
         is_unified_queue_ ? unified_queue_
-                          : write_draining_ > 0 ? write_buffer_ : read_queue_;
+                          : copy_queue_.size() > 0 ? copy_queue_
+                          : write_draining_ > 0 ? write_buffer_: read_queue_;
     for (auto it = queue.begin(); it != queue.end(); it++) {
-        auto cmd = TransToCommand(*it);
-        if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
-                                         cmd.Bank())) {
-            if (!is_unified_queue_ && cmd.IsWrite()) {
-                // Enforce R->W dependency
-                if (pending_rd_q_.count(it->addr) > 0) {
-                    write_draining_ = 0;
-                    break;
-                }
-                write_draining_ -= 1;
+        // Row clone added
+        if(it->is_copy){
+            auto cmds = CopyTransToCommand(*it);
+            auto cmd_read = cmds.first;
+            auto cmd_write = cmds.second;
+            if(cmd_queue_.WillAcceptCommand(cmd_read.Rank(), cmd_read.Bankgroup(), cmd_read.Bank()) \
+                && cmd_queue_.WillAcceptCommand(cmd_write.Rank(), cmd_write.Bankgroup(), cmd_write.Bank())){
+                cmd_queue_.AddCommand(cmd_read);
+                cmd_queue_.AddCommand(cmd_write);
+                queue.erase(it);
+                break;
             }
-            cmd_queue_.AddCommand(cmd);
-            queue.erase(it);
-            break;
+        }
+        else{
+            auto cmd = TransToCommand(*it);
+            if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
+                                            cmd.Bank())) {
+                if (!is_unified_queue_ && cmd.IsWrite()) {
+                    // Enforce R->W dependency
+                    if (pending_rd_q_.count(it->addr) > 0) {
+                        write_draining_ = 0;
+                        break;
+                    }
+                    write_draining_ -= 1;
+                }
+                cmd_queue_.AddCommand(cmd);
+                queue.erase(it);
+                break;
+            }
         }
     }
 }
@@ -307,6 +325,23 @@ Command Controller::TransToCommand(const Transaction &trans) {
                                   : CommandType::READ_PRECHARGE;
     }
     return Command(cmd_type, addr, trans.addr);
+}
+
+// rowclone added
+std::pair<Command, Command> Controller::CopyTransToCommand(const Transaction &trans){
+    auto addr1 = config_.AddressMapping(trans.addr.src_addr); // for readcopy
+    auto addr2 = config_.AddressMapping(trans.addr.dest_addr); // for writecopy
+    CommandType cmd_type1, cmd_type2;
+    if (row_buf_policy_ == RowBufPolicy::OPEN_PAGE){
+        cmd_type1 = CommandType::READCOPY;
+        cmd_type2 = CommandType::WRITECOPY;
+        //std::cout<<clk_<<" read write"<<std::endl;
+    } else {
+        cmd_type1 = CommandType::READCOPY_PRECHARGE;
+        cmd_type2 = CommandType::WRITECOPY_PRECHARGE;
+        //std::cout<<clk_<<" readpre writepre"<<std::endl;
+    }
+    return std::make_pair(Command(cmd_type1, addr1, trans.addr), Command(cmd_type2, addr2, trans.addr));
 }
 
 int Controller::QueueUsage() const { return cmd_queue_.QueueUsage(); }
