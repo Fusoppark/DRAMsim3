@@ -250,6 +250,12 @@ void Controller::ScheduleTransaction() {
             auto cmd_write = cmds.second;
             if(cmd_queue_.WillAcceptCommand(cmd_read.Rank(), cmd_read.Bankgroup(), cmd_read.Bank()) \
                 && cmd_queue_.WillAcceptCommand(cmd_write.Rank(), cmd_write.Bankgroup(), cmd_write.Bank(), 1)){
+                // TODO: write_draining_ 수정하기
+                if (pending_rd_q_.count(it->addr.dest_addr) > 0) {
+                    write_draining_ = 0;
+                    break;
+                }
+
                 cmd_queue_.AddCommand(cmd_read);
                 cmd_queue_.AddCommand(cmd_write);
                 std::cout<<"added"<<std::endl;
