@@ -152,6 +152,17 @@ struct Command {
                cmd_type == CommandType::SREF_ENTER ||
                cmd_type == CommandType::SREF_EXIT;
     }
+
+    // Rowclone added
+    bool IsReadCopy() const {
+        return cmd_type == CommandType::READCOPY ||
+               cmd_type == CommandType::READCOPY_PRECHARGE;
+    }
+    bool IsWriteCopy() const {
+        return cmd_type == CommandType::WRITECOPY ||
+               cmd_type == CommandType::WRITECOPY_PRECHARGE;
+    }
+
     CommandType cmd_type;
     Address addr;
     AddressPair hex_addr;
