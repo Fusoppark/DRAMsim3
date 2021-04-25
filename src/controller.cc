@@ -172,6 +172,10 @@ const Config* Controller::getConfig(){
     return &config_;
 }
 
+void Controller::InCopyFlagDown(){
+    cmd_queue_.InCopyFlagDown();
+}
+
 bool Controller::AddTransaction(Transaction trans) {
     std::cout<<clk_<<" addtransaction"<<std::endl;
     trans.added_cycle = clk_;
@@ -402,6 +406,7 @@ void Controller::IssueCommand(const Command &cmd) {
     else if(cmd.IsWriteCopy()){
         // if writecopy
         // state update to wait writecopy
+        InCopyFlagDown();
         std::cout<<"writecopy"<<std::endl;
     }
     // must update stats before states (for row hits)

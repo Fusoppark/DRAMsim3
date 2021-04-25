@@ -40,6 +40,7 @@ class Controller {
 
     // RowClone added
     const Config* getConfig();
+    void InCopyFlagDown();
 
     int channel_id_;
 

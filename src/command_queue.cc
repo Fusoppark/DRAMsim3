@@ -45,6 +45,26 @@ Command CommandQueue::GetCommandToIssue() {
         }
         
         auto cmd = GetFirstReadyInQueue(queue);
+
+        // --------------------------------------------------------------------------
+        // RowClone added
+        // If READCOPY is going to be issued, force to find pair WRITECOPY in next for loop
+
+        if(cmd.cmd_type == CommandType::READCOPY){
+
+            is_in_copy_ = true;
+            copy_address_pair_ = cmd.hex_addr;
+            auto addr = config_.AddressMapping(cmd.hex_addr.dest_addr);
+            queue_idx_ = GetQueueIndex(addr.rank, addr.bankgroup, addr.bank) - 1;
+        }
+
+        // ---------------------------------------------------------------------------
+
+        std::cout << std::hex << "Issued : " << cmd.hex_addr.src_addr << " " << cmd.hex_addr.dest_addr << std::dec;
+        if(cmd.cmd_type == CommandType::READCOPY){std::cout << " " << "READCOPY";}
+        if(cmd.cmd_type == CommandType::WRITECOPY){std::cout << " " << "WRITECOPY";}
+        std::cout << std::endl;
+
         if (cmd.IsValid()) {
             if (cmd.IsReadWrite()) {
                 EraseRWCommand(cmd);
@@ -57,6 +77,12 @@ Command CommandQueue::GetCommandToIssue() {
     }
     return Command();
 }
+
+// RowClone Added
+void CommandQueue::InCopyFlagDown(){
+    is_in_copy_ = false;
+}
+
 
 Command CommandQueue::FinishRefresh() {
     // we can do something fancy here like clearing the R/Ws
@@ -185,6 +211,37 @@ CMDQueue& CommandQueue::GetQueue(int rank, int bankgroup, int bank) {
 
 Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
     //std::cout<<clk_<<" getfirtstreadyinqueue"<<std::endl;
+
+    // ---------------------------------------------------------------
+    // RowClone added
+    if(is_in_copy_){
+        unsigned cmd_idx = 0;
+        while((queue[cmd_idx].cmd_type != CommandType::WRITECOPY) && (queue[cmd_idx].hex_addr != copy_address_pair_) && (cmd_idx < queue.size())){
+            cmd_idx++;
+        }
+
+        // move copy cmd to the front
+        if(cmd_idx < queue.size()){
+            Command copy_temp = queue[cmd_idx];
+            for(unsigned i=cmd_idx; i > 0; i++){
+                queue[i] = queue[i-1];
+            }
+            queue[0] = copy_temp;
+        }
+
+        // only checks if cmd is valid
+        auto cmd_it = queue.begin();
+        Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
+        if (!cmd.IsValid()) {
+            return Command();
+        }
+        return cmd;
+
+    }
+
+    // -------------------------------------------------------------------
+
+
     for (auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++) {
         Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
         if (!cmd.IsValid()) {

@@ -29,6 +29,7 @@ class CommandQueue {
 
     // Rowclone added
     bool DeleteLastCommand(Command cmd);
+    void InCopyFlagDown();
 
    private:
     bool ArbitratePrecharge(const CMDIterator& cmd_it,
@@ -53,6 +54,12 @@ class CommandQueue {
     // Refresh related data structures
     std::unordered_set<int> ref_q_indices_;
     bool is_in_ref_;
+
+    // -------------------------------------------------
+    // RowClone added
+    bool is_in_copy_;                       // Flag goes up when READCOPY is going to be issued, goes down when WRITECOPY is issued(IssueCopy)
+    AddressPair copy_address_pair_;         // Stores src, dest address of issued READCOPY. Use to find pair WRITECOPY of READCOPY
+    // -------------------------------------------------
 
     int num_queues_;
     size_t queue_size_;

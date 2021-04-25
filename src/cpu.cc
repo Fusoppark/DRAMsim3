@@ -24,6 +24,7 @@ void RandomCPU::ClockTick() {
     get_next_ = memory_system_.WillAcceptTransaction(last_addr_, last_write_);
     if (get_next_) {
         std::cout<<"yes"<<std::endl;
+        std::cout<< "Random : " << std::hex << last_addr_.src_addr << " " << std::dec << last_addr_.dest_addr << std::dec <<std::endl;
         memory_system_.AddTransaction(last_addr_, last_write_);
     }
     clk_++;
