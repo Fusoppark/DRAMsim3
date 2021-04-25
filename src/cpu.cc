@@ -8,6 +8,7 @@ void RandomCPU::ClockTick() {
     // this is useful to exploit the parallelism of a DRAM protocol
     // and is also immune to address mapping and scheduling policies
     memory_system_.ClockTick();
+    //std::cout<<clk_<<" cpu start"<<std::endl;
     if (get_next_) {
         if(is_copy_){
             //std::cout<<"copy"<<std::endl;
@@ -19,11 +20,14 @@ void RandomCPU::ClockTick() {
             last_write_ = (gen() % 3 == 0);
         }
     }
+    //std::cout<<"willl"<<std::endl;
     get_next_ = memory_system_.WillAcceptTransaction(last_addr_, last_write_);
     if (get_next_) {
+        //std::cout<<"yes"<<std::endl;
         memory_system_.AddTransaction(last_addr_, last_write_);
     }
     clk_++;
+    //std::cout<<clk_<<" cpu end"<<std::endl;
     return;
 }
 

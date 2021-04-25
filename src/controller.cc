@@ -75,10 +75,12 @@ void Controller::ClockTick() {
 
     // cannot find a refresh related command or there's no refresh
     if (!cmd.IsValid()) {
+        //std::cout<<clk_<<" getcommandtoissue"<<std::endl;
         cmd = cmd_queue_.GetCommandToIssue();
     }
 
     if (cmd.IsValid()) {
+        //std::cout<<clk_<<" "<<cmd.IsReadCopy()<<std::endl;
         IssueCommand(cmd);
         cmd_issued = true;
 
@@ -146,6 +148,7 @@ void Controller::ClockTick() {
     clk_++;
     cmd_queue_.ClockTick();
     simple_stats_.Increment("num_cycles");
+    std::cout<<clk_<<" end"<<std::endl;
     return;
 }
 
@@ -258,7 +261,7 @@ void Controller::ScheduleTransaction() {
 
                 cmd_queue_.AddCommand(cmd_read);
                 cmd_queue_.AddCommand(cmd_write);
-                std::cout<<"added"<<std::endl;
+                //std::cout<<clk_<<" "<<cmd_read.hex_addr.src_addr<<" added "<<cmd_write.hex_addr.dest_addr<<std::endl;
                 queue.erase(it);
                 break;
             }
@@ -316,10 +319,30 @@ void Controller::IssueCommand(const Command &cmd) {
         auto wr_lat = clk_ - it->second.added_cycle + config_.write_delay;
         simple_stats_.AddValue("write_latency", wr_lat);
         pending_wr_q_.erase(it);
+    } else if (cmd.IsReadCopy()) { // rowclone added
+        // find exactly same copy from pending_copy_queue
+        // if there is, return it
+        std::cout<<clk_<<" isreadcopy "<<pending_cp_q_.size()<<std::endl;
+        auto num_copys = pending_cp_q_.count(cmd.hex_addr);
+        if (num_copys == 0) {
+            std::cerr << cmd.hex_addr << " not in copy queue! " << std::endl;
+            exit(1);
+        }
+        std::cout<<clk_<<" :"<<num_copys<<std::endl;
+        // if there are multiple reads pending return them all
+        while (num_copys > 0) {
+            auto it = pending_cp_q_.find(cmd.hex_addr);
+            it->second.complete_cycle = clk_; // timing calculation
+            return_queue_.push_back(it->second);
+            pending_rd_q_.erase(it);
+            num_copys -= 1;
+        }
+        std::cout<<"issue command read copy"<<std::endl;
     }
     // must update stats before states (for row hits)
     UpdateCommandStats(cmd);
-    channel_state_.UpdateTimingAndStates(cmd, clk_);
+    channel_state_.UpdateTimingAndStates(cmd, clk_); // make dest bank WAIT_WRITECOPY state
+    // TODO : update timing (calculation...OTL)
 }
 
 Command Controller::TransToCommand(const Transaction &trans) {
@@ -394,6 +417,14 @@ void Controller::UpdateCommandStats(const Command &cmd) {
                                            cmd.Bank()) != 0) {
                 simple_stats_.Increment("num_write_row_hits");
             }
+            break;
+        case CommandType::READCOPY:
+        case CommandType::READCOPY_PRECHARGE:
+            simple_stats_.Increment("num_read_copy_cmds");
+            break;
+        case CommandType::WRITECOPY:
+        case CommandType::WRITECOPY_PRECHARGE:
+            simple_stats_.Increment("num_write_copy_cmds");
             break;
         case CommandType::ACTIVATE:
             simple_stats_.Increment("num_act_cmds");

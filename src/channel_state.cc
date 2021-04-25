@@ -73,6 +73,25 @@ void ChannelState::RankNeedRefresh(int rank, bool need) {
     return;
 }
 
+// Rowclone added
+bool ChannelState::CanStartWait(const Command& cmd, uint64_t clk) const{
+    // only called when read copy ( cmd -> write copy )
+    Command ready_cmd = bank_states_[cmd.Rank()][cmd.Bankgroup()][cmd.Bank()]
+                        .GetReadyCommand(cmd, clk);
+    if (!ready_cmd.IsValid()) {
+        //std::cout<<"ready_cmd is invalid"<<std::endl;
+        return false;
+    }
+    if (ready_cmd.cmd_type == CommandType::ACTIVATE) {
+        if (!ActivationWindowOk(ready_cmd.Rank(), clk)) {
+            return false;
+        }
+    }
+    //std::cout<<"canstartwait"<<std::endl;
+    return true;
+}
+
+
 Command ChannelState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
     Command ready_cmd = Command();
     if (cmd.IsRankCMD()) {
@@ -100,6 +119,7 @@ Command ChannelState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
             return Command();
         }
     } else {
+        //std::cout<<"channelstategetreadycommand"<<std::endl;
         ready_cmd = bank_states_[cmd.Rank()][cmd.Bankgroup()][cmd.Bank()]
                         .GetReadyCommand(cmd, clk);
         if (!ready_cmd.IsValid()) {
@@ -132,6 +152,14 @@ void ChannelState::UpdateState(const Command& cmd) {
         bank_states_[cmd.Rank()][cmd.Bankgroup()][cmd.Bank()].UpdateState(cmd);
         if (cmd.IsRefresh()) {
             BankNeedRefresh(cmd.Rank(), cmd.Bankgroup(), cmd.Bank(), false);
+        } else if (cmd.IsReadCopy()){
+            // make dest bank WAIT WRITECOPY
+            std::cout<<"making wait"<<std::endl;
+            if(!cmd.isFPM){
+                std::cout<<"have to make wait"<<std::endl;
+                auto dest_address = config_.AddressMapping(cmd.hex_addr.dest_addr);
+                bank_states_[dest_address.rank][dest_address.bankgroup][dest_address.bank].StartWaitWriteCopy();
+            }
         }
     }
     return;
@@ -179,6 +207,11 @@ void ChannelState::UpdateTiming(const Command& cmd, uint64_t clk) {
                 cmd.addr, timing_.same_rank[static_cast<int>(cmd.cmd_type)],
                 clk);
             break;
+        case CommandType::READCOPY:
+        case CommandType::READCOPY_PRECHARGE:
+        case CommandType::WRITECOPY:
+        case CommandType::WRITECOPY_PRECHARGE:
+            break; //TODO : calculate timing and set all timings
         default:
             AbruptExit(__FILE__, __LINE__);
     }

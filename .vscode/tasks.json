@@ -4,7 +4,7 @@
     "version": "0.1.0",
     "command": "make",
     "isShellCommand": true,
-    "args": ["-j5"],
+    "args": ["-j4", "-g"],
     "showOutput": "always",
     "options": {
         "cwd": "${workspaceRoot}/build"

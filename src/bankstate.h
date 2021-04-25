@@ -10,7 +10,7 @@ class BankState {
    public:
     BankState();
 
-    enum class State { OPEN, CLOSED, SREF, PD, SIZE };
+    enum class State { OPEN, CLOSED, SREF, PD, WAIT_WRITECOPY, SIZE };
     Command GetReadyCommand(const Command& cmd, uint64_t clk) const;
 
     // Update the state of the bank resulting after the execution of the command
@@ -22,6 +22,9 @@ class BankState {
     bool IsRowOpen() const { return state_ == State::OPEN; }
     int OpenRow() const { return open_row_; }
     int RowHitCount() const { return row_hit_count_; }
+
+    // rowclone added
+    void StartWaitWriteCopy() {state_ = State::WAIT_WRITECOPY;}
 
    private:
     // Current state of the Bank
@@ -36,6 +39,9 @@ class BankState {
 
     // consecutive accesses to one row
     int row_hit_count_;
+
+    // rowcloe added
+    Command waiting_command_;
 };
 
 }  // namespace dramsim3

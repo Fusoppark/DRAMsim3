@@ -38,6 +38,11 @@ SimpleStats::SimpleStats(const Config& config, int channel_id)
     InitStat("num_srefx_cmds", "counter", "Number of SREFX commands");
     InitStat("hbm_dual_cmds", "counter", "Number of cycles dual cmds issued");
 
+
+    // rowclone added
+    InitStat("num_read_copy_cmds", "counter", "Number of READCOPY commands");
+    InitStat("num_write_copy_cmds", "counter", "Number of WRITECOPY commands");
+
     // double stats
     InitStat("act_energy", "double", "Activation energy");
     InitStat("read_energy", "double", "Read energy");

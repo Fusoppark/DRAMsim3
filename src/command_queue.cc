@@ -47,6 +47,7 @@ Command CommandQueue::GetCommandToIssue() {
             if (cmd.IsReadWrite()) {
                 EraseRWCommand(cmd);
             }
+            //std::cout<<clk_<<" getcommand"<<std::endl;
             return cmd;
         }
     }
@@ -179,6 +180,7 @@ CMDQueue& CommandQueue::GetQueue(int rank, int bankgroup, int bank) {
 }
 
 Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
+    //std::cout<<clk_<<" getfirtstreadyinqueue"<<std::endl;
     for (auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++) {
         Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
         if (!cmd.IsValid()) {
@@ -192,6 +194,30 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
             if (HasRWDependency(cmd_it, queue)) {
                 continue;
             }
+        } else if (cmd.IsWriteCopy()){
+            continue;
+        } else if (cmd.IsReadCopy()){
+            // check bank same or not
+            //std::cout<<clk_<<" isreadcopy"<<std::endl;
+            auto src_address = cmd.addr;
+            auto dest_address = config_.AddressMapping(cmd.hex_addr.dest_addr);
+
+            if(src_address.bankgroup != dest_address.bankgroup || \
+                src_address.bank != dest_address.bank){
+                // different bank
+                cmd.isFPM = false;
+                // check whether dest bank can start waiting for WRITE_COPY
+                if(!channel_state_.CanStartWait(Command(CommandType::WRITECOPY, \
+                    dest_address, cmd.hex_addr), clk_)){
+                    // dest bank can not start waiting for WRITE_COPY
+                    //std::cout<<"no writecopy"<<std::endl;
+                    continue;
+                }
+            }
+            else{
+                cmd.isFPM = true;
+            }
+            //std::cout<<clk_<<" readcopy issue"<<std::endl;
         }
         return cmd;
     }

@@ -167,6 +167,9 @@ struct Command {
     Address addr;
     AddressPair hex_addr;
 
+    // Rowclone added
+    bool isFPM;
+
     int Channel() const { return addr.channel; }
     int Rank() const { return addr.rank; }
     int Bankgroup() const { return addr.bankgroup; }

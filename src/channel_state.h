@@ -35,6 +35,9 @@ class ChannelState {
         return bank_states_[rank][bankgroup][bank].RowHitCount();
     };
 
+    // Rowclone added
+    bool CanStartWait(const Command& cmd, uint64_t clk) const;
+
     std::vector<int> rank_idle_cycles;
 
    private:
