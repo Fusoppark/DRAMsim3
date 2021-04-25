@@ -28,12 +28,12 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::READ_PRECHARGE:
                 case CommandType::WRITE:
                 case CommandType::WRITE_PRECHARGE:
+                    required_type = CommandType::ACTIVATE;
+                    break;
                 case CommandType::READCOPY: // Rowclone added
                 case CommandType::READCOPY_PRECHARGE:
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    required_type = CommandType::ACTIVATE;
-                    break;
                 case CommandType::REFRESH:
                 case CommandType::REFRESH_BANK:
                 case CommandType::SREF_ENTER:
@@ -51,10 +51,6 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::READ_PRECHARGE:
                 case CommandType::WRITE:
                 case CommandType::WRITE_PRECHARGE:
-                case CommandType::READCOPY: //Rowclone added
-                case CommandType::READCOPY_PRECHARGE:
-                case CommandType::WRITECOPY:
-                case CommandType::WRITECOPY_PRECHARGE:
                     if (cmd.Row() == open_row_) {
                         required_type = cmd.cmd_type;
                     } else {
@@ -65,6 +61,12 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::REFRESH_BANK:
                 case CommandType::SREF_ENTER:
                     required_type = CommandType::PRECHARGE;
+                    break;
+                case CommandType::READCOPY: //Rowclone added
+                case CommandType::READCOPY_PRECHARGE:
+                case CommandType::WRITECOPY:
+                case CommandType::WRITECOPY_PRECHARGE:
+                    required_type = cmd.cmd_type;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -78,11 +80,13 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::READ_PRECHARGE:
                 case CommandType::WRITE:
                 case CommandType::WRITE_PRECHARGE:
+                    required_type = CommandType::SREF_EXIT;
+                    break;
                 case CommandType::READCOPY: // Rowclone added
                 case CommandType::READCOPY_PRECHARGE:
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    required_type = CommandType::SREF_EXIT;
+                    required_type = cmd.cmd_type;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -178,12 +182,14 @@ void BankState::UpdateState(const Command& cmd) {
                 case CommandType::SREF_ENTER:
                     state_ = State::SREF;
                     break;
-                case CommandType::READ:
-                case CommandType::WRITE:
                 case CommandType::READCOPY:
                 case CommandType::READCOPY_PRECHARGE:
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
+                    state_ = State::OPEN;
+                    break;
+                case CommandType::READ:
+                case CommandType::WRITE:
                 case CommandType::READ_PRECHARGE:
                 case CommandType::WRITE_PRECHARGE:
                 case CommandType::PRECHARGE:
@@ -215,6 +221,27 @@ void BankState::UpdateState(const Command& cmd) {
                     AbruptExit(__FILE__, __LINE__);
             }
             break;
+        case State::WAIT_WRITECOPY:
+            switch(cmd.cmd_type){
+                case CommandType::WRITECOPY:
+                case CommandType::WRITECOPY_PRECHARGE:
+                    state_ = State::OPEN;
+                case CommandType::SREF_EXIT:
+                case CommandType::READ:
+                case CommandType::WRITE:
+                case CommandType::READ_PRECHARGE:
+                case CommandType::WRITE_PRECHARGE:
+                case CommandType::READCOPY:
+                case CommandType::READCOPY_PRECHARGE:
+                case CommandType::ACTIVATE:
+                case CommandType::PRECHARGE:
+                case CommandType::REFRESH:
+                case CommandType::REFRESH_BANK:
+                case CommandType::SREF_ENTER:
+                    break;
+                default:
+                    AbruptExit(__FILE__, __LINE__);
+            }
         default:
             AbruptExit(__FILE__, __LINE__);
     }

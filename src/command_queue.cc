@@ -36,18 +36,22 @@ CommandQueue::CommandQueue(int channel_id, const Config& config,
 Command CommandQueue::GetCommandToIssue() {
     for (int i = 0; i < num_queues_; i++) {
         auto& queue = GetNextQueue();
+
         // if we're refresing, skip the command queues that are involved
         if (is_in_ref_) {
             if (ref_q_indices_.find(queue_idx_) != ref_q_indices_.end()) {
                 continue;
             }
         }
+        
         auto cmd = GetFirstReadyInQueue(queue);
         if (cmd.IsValid()) {
             if (cmd.IsReadWrite()) {
                 EraseRWCommand(cmd);
             }
             //std::cout<<clk_<<" getcommand"<<std::endl;
+            std::cout<<"read: "<<cmd.IsRead()<<" write: "<<cmd.IsWrite()<<" readcopy: "<<cmd.IsReadCopy()<< \
+            " writecopy: "<<cmd.IsWriteCopy()<<" refresh: "<<cmd.IsRefresh()<<std::endl;
             return cmd;
         }
     }
