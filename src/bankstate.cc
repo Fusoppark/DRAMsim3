@@ -23,6 +23,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
     CommandType required_type = CommandType::SIZE;
     switch (state_) {
         case State::CLOSED:
+            //std::cout << "Bank State : CLOSED" << std::endl;
             switch (cmd.cmd_type) {
                 case CommandType::READ:
                 case CommandType::READ_PRECHARGE:
@@ -46,6 +47,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
             }
             break;
         case State::OPEN:
+            //std::cout << "Bank State : OPEN" << std::endl;
             switch (cmd.cmd_type) {
                 case CommandType::READ:
                 case CommandType::READ_PRECHARGE:
@@ -75,6 +77,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
             }
             break;
         case State::SREF:
+            //std::cout << "Bank State : SREF" << std::endl;
             switch (cmd.cmd_type) {
                 case CommandType::READ:
                 case CommandType::READ_PRECHARGE:
@@ -96,6 +99,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
             break;
         case State::WAIT_WRITECOPY:
             // Rowclone added
+            //std::cout << "Bank State : WAIT_WRITECOPY" << std::endl;
             switch (cmd.cmd_type) {
                 case CommandType::READ:
                 case CommandType::READ_PRECHARGE:
@@ -111,6 +115,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
                     // if this wait is for current command, or not
+                    /*
                     if(waiting_command_.cmd_type == cmd.cmd_type && \
                         waiting_command_.hex_addr.src_addr == cmd.hex_addr.src_addr && \
                         waiting_command_.hex_addr.dest_addr == cmd.hex_addr.dest_addr){
@@ -121,6 +126,9 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                         // cannot do anything
                         break;
                     }
+                     */
+                    required_type = CommandType::ACTIVATE;
+                    break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
                     AbruptExit(__FILE__, __LINE__);
@@ -128,8 +136,9 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
             }
             break;
         case State::PD:
+            //std::cout << "Bank State : PD" << std::endl;
         case State::SIZE:
-            std::cerr << "In unknown state" << std::endl;
+            //std::cerr << "In unknown state" << std::endl;
             AbruptExit(__FILE__, __LINE__);
             break;
     }

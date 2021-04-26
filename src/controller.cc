@@ -148,7 +148,7 @@ void Controller::ClockTick() {
     clk_++;
     cmd_queue_.ClockTick();
     simple_stats_.Increment("num_cycles");
-    std::cout<<clk_<<" end"<<std::endl;
+    //std::cout<<clk_<<" end"<<std::endl;
     return;
 }
 
@@ -431,6 +431,8 @@ Command Controller::TransToCommand(const Transaction &trans) {
 std::pair<Command, Command> Controller::CopyTransToCommand(const Transaction &trans){
     auto addr1 = config_.AddressMapping(trans.addr.src_addr); // for readcopy
     auto addr2 = config_.AddressMapping(trans.addr.dest_addr); // for writecopy
+
+    //std::cout << "CopyTransToCommand : " << addr1.rank * config_.banks + addr1.bankgroup * config_.banks_per_group + addr1.bank << " " << addr2.rank * config_.banks + addr2.bankgroup * config_.banks_per_group + addr2.bank << std::endl;
     CommandType cmd_type1, cmd_type2;
     if (row_buf_policy_ == RowBufPolicy::OPEN_PAGE){
         cmd_type1 = CommandType::READCOPY;

@@ -10,8 +10,12 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
     std::vector<std::string> command_string = {
         "read",
         "read_p",
+        "read_copy",
+        "read_copy_p",
         "write",
         "write_p",
+        "write_copy",
+        "write_copy_p",
         "activate",
         "precharge",
         "refresh_bank",  // verilog model doesn't distinguish bank/rank refresh

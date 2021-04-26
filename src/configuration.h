@@ -35,6 +35,7 @@ class Config {
    public:
     Config(std::string config_file, std::string out_dir);
     Address AddressMapping(AddressPair hex_addr) const;
+
     // DRAM physical structure
     DRAMProtocol protocol;
     int channel_size;

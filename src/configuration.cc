@@ -41,6 +41,7 @@ Address Config::AddressMapping(AddressPair hex_addr) const {
     return Address(channel, rank, bg, ba, ro, co);
 }
 
+
 void Config::CalculateSize() {
     // calculate rank and re-calculate channel_size
     devices_per_rank = bus_width / device_width;
