@@ -75,12 +75,12 @@ void Controller::ClockTick() {
 
     // cannot find a refresh related command or there's no refresh
     if (!cmd.IsValid()) {
-        //std::cout<<clk_<<" getcommandtoissue"<<std::endl;
+        std::cout<<clk_<<" getcommandtoissue"<<std::endl;
         cmd = cmd_queue_.GetCommandToIssue();
     }
 
     if (cmd.IsValid()) {
-        //std::cout<<clk_<<" "<<cmd.IsReadCopy()<<std::endl;
+        std::cout<<clk_<<" "<<cmd.IsReadCopy()<<std::endl;
         IssueCommand(cmd);
         cmd_issued = true;
 

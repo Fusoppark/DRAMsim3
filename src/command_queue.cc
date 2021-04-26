@@ -12,6 +12,7 @@ CommandQueue::CommandQueue(int channel_id, const Config& config,
       is_in_ref_(false),
       queue_size_(static_cast<size_t>(config_.cmd_queue_size)),
       queue_idx_(0),
+      is_in_copy_(false),
       clk_(0) {
     if (config_.queue_structure == "PER_BANK") {
         queue_structure_ = QueueStructure::PER_BANK;
@@ -24,7 +25,8 @@ CommandQueue::CommandQueue(int channel_id, const Config& config,
                   << config_.queue_structure << std::endl;
         AbruptExit(__FILE__, __LINE__);
     }
-
+    // row clone added
+    copy_address_pair_ = AddressPair();
     queues_.reserve(num_queues_);
     for (int i = 0; i < num_queues_; i++) {
         auto cmd_queue = std::vector<Command>();
@@ -34,7 +36,8 @@ CommandQueue::CommandQueue(int channel_id, const Config& config,
 }
 
 Command CommandQueue::GetCommandToIssue() {
-    for (int i = 0; i < num_queues_; i++) {
+    for (int i = queue_idx_; i < num_queues_; i++) {
+        std::cout<<i<<"th queue"<<std::endl;
         auto& queue = GetNextQueue();
 
         // if we're refresing, skip the command queues that are involved
@@ -45,13 +48,13 @@ Command CommandQueue::GetCommandToIssue() {
         }
         
         auto cmd = GetFirstReadyInQueue(queue);
+        std::cout<<"get command"<<std::endl;
 
         // --------------------------------------------------------------------------
         // RowClone added
         // If READCOPY is going to be issued, force to find pair WRITECOPY in next for loop
 
         if(cmd.cmd_type == CommandType::READCOPY){
-
             is_in_copy_ = true;
             copy_address_pair_ = cmd.hex_addr;
             auto addr = config_.AddressMapping(cmd.hex_addr.dest_addr);
@@ -215,11 +218,14 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
     // ---------------------------------------------------------------
     // RowClone added
     if(is_in_copy_){
+        std::cout<<"isincopy"<<std::endl;
         unsigned cmd_idx = 0;
-        while((queue[cmd_idx].cmd_type != CommandType::WRITECOPY) && (queue[cmd_idx].hex_addr != copy_address_pair_) && (cmd_idx < queue.size())){
+        std::cout<<queue.size()<<std::endl;
+        while((cmd_idx < queue.size()) && (!queue[cmd_idx].IsWriteCopy()) && (queue[cmd_idx].hex_addr != copy_address_pair_)){
+            std::cout<<cmd_idx<<std::endl;
             cmd_idx++;
         }
-
+        std::cout<<"found one"<<std::endl;
         // move copy cmd to the front
         if(cmd_idx < queue.size()){
             Command copy_temp = queue[cmd_idx];
@@ -228,19 +234,24 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
             }
             queue[0] = copy_temp;
         }
-
+        std::cout<<"checks valid"<<std::endl;
         // only checks if cmd is valid
-        auto cmd_it = queue.begin();
-        Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
-        if (!cmd.IsValid()) {
-            return Command();
+        if(queue.size() != 0){
+            auto cmd_it = queue.begin();
+            std::cout<<"begin"<<std::endl;
+            Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
+            std::cout<<"get"<<std::endl;
+            if (!cmd.IsValid()) {
+                return Command();
+            }
+            std::cout<<"return command"<<std::endl;
+            return cmd;
         }
-        return cmd;
-
+        return Command();
     }
 
     // -------------------------------------------------------------------
-
+    std::cout<<"original"<<std::endl;
 
     for (auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++) {
         Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);

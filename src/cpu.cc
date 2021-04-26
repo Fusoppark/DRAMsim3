@@ -7,6 +7,7 @@ void RandomCPU::ClockTick() {
     // Create random CPU requests at full speed
     // this is useful to exploit the parallelism of a DRAM protocol
     // and is also immune to address mapping and scheduling policies
+    std::cout<<"before clocktick"<<std::endl;
     memory_system_.ClockTick();
     std::cout<<clk_<<" cpu start"<<std::endl;
     if (get_next_) {
