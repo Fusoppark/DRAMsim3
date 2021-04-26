@@ -220,7 +220,7 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
     // RowClone added
     if(is_in_copy_){
         //std::cout<<"isincopy"<<std::endl;
-        unsigned cmd_idx;
+        unsigned cmd_idx = 0;
 
         std::cout<<queue.size()<<std::endl;
 
