@@ -39,7 +39,7 @@ Command CommandQueue::GetCommandToIssue() {
     for (int i = 0; i < num_queues_; i++) {
 
         auto& queue = GetNextQueue();
-        std::cout<< queue_idx_ <<"th queue ";
+        //std::cout<< queue_idx_ <<"th queue ";
 
         // if we're refresing, skip the command queues that are involved
         if (is_in_ref_) {
@@ -64,17 +64,17 @@ Command CommandQueue::GetCommandToIssue() {
 
         // ---------------------------------------------------------------------------
 
-        std::cout << std::hex << "Issued : " << cmd.hex_addr.src_addr << " " << cmd.hex_addr.dest_addr << std::dec;
-        if(cmd.cmd_type == CommandType::READCOPY){std::cout << " " << "READCOPY";}
-        if(cmd.cmd_type == CommandType::WRITECOPY){std::cout << " " << "WRITECOPY";}
-        std::cout << std::endl;
+        //std::cout << std::hex << "Issued : " << cmd.hex_addr.src_addr << " " << cmd.hex_addr.dest_addr << std::dec;
+        //if(cmd.cmd_type == CommandType::READCOPY){std::cout << " " << "READCOPY";}
+        //if(cmd.cmd_type == CommandType::WRITECOPY){std::cout << " " << "WRITECOPY";}
+        //std::cout << std::endl;
 
         if (cmd.IsValid()) {
             if (cmd.IsReadWrite()) {
                 EraseRWCommand(cmd);
             }
             //std::cout<<clk_<<" getcommand"<<std::endl;
-            std::cout<<"read: "<<cmd.IsRead()<<" write: "<<cmd.IsWrite()<<" readcopy: "<<cmd.IsReadCopy()<< \
+            //std::cout<<"read: "<<cmd.IsRead()<<" write: "<<cmd.IsWrite()<<" readcopy: "<<cmd.IsReadCopy()<< \
             " writecopy: "<<cmd.IsWriteCopy()<<" refresh: "<<cmd.IsRefresh()<<std::endl;
             return cmd;
         }
@@ -222,10 +222,10 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
         //std::cout<<"isincopy"<<std::endl;
         unsigned cmd_idx = 0;
 
-        std::cout<<queue.size()<<std::endl;
+        //std::cout<<queue.size()<<std::endl;
 
         while((cmd_idx < queue.size()) && !((queue[cmd_idx].IsWriteCopy()) && (queue[cmd_idx].hex_addr == copy_address_pair_))){
-            std::cout<<cmd_idx<<std::endl;
+            //std::cout<<cmd_idx<<std::endl;
             cmd_idx++;
         }
         /*
@@ -251,8 +251,8 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
         // only checks if cmd is valid
         if(queue.size() != 0){
             auto cmd_it = queue.begin();
-            std::cout << (*cmd_it) << std::endl;
-            std::cout<<"begin : ";
+            //std::cout << (*cmd_it) << std::endl;
+            //std::cout<<"begin : ";
             Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
             //std::cout<<"get"<<std::endl;
             if (!cmd.IsValid()) {

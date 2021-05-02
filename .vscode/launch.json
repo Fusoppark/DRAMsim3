@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/dramsim3main",
-            "args": ["configs/DDR3_8Gb_x16_1866.ini", "--stream", "random", "-c", "3"],
+            "args": ["configs/DDR3_8Gb_x16_1866.ini", "--stream", "random", "-c", "4"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

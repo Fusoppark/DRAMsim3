@@ -177,7 +177,7 @@ void Controller::InCopyFlagDown(){
 }
 
 bool Controller::AddTransaction(Transaction trans) {
-    std::cout<<clk_<<" addtransaction"<<std::endl;
+    //std::cout<<clk_<<" addtransaction"<<std::endl;
     trans.added_cycle = clk_;
     simple_stats_.AddValue("interarrival_latency", clk_ - last_trans_clk_);
     last_trans_clk_ = clk_;
@@ -195,21 +195,16 @@ bool Controller::AddTransaction(Transaction trans) {
             }
             return true;
         }
-        std::cout<<"end check"<<std::endl;
+        //std::cout<<"end check"<<std::endl;
         // new trans added to copy_queue_
         pending_cp_q_.insert(std::make_pair(trans.addr, trans));
-        std::cout<<pending_cp_q_.size()<<std::endl;
-        if(clk_ != 6){
-            for(auto iter = pending_cp_q_.begin();iter != pending_cp_q_.end();iter++){
-                std::cout<<iter->first<<" ";
-            }
-        }
+        //std::cout<<pending_cp_q_.size()<<std::endl;
         
         if(pending_cp_q_.count(trans.addr) == 1){
-            std::cout<<"one"<<std::endl;
+            //std::cout<<"one"<<std::endl;
             copy_queue_.push_back(trans);
         }
-        std::cout<<"end add"<<std::endl;
+        //std::cout<<"end add"<<std::endl;
         return true;
     }
     else if (trans.is_write) {
@@ -386,7 +381,7 @@ void Controller::IssueCommand(const Command &cmd) {
     } else if (cmd.IsReadCopy()) { // rowclone added
         // find exactly same copy from pending_copy_queue
         // if there is, return it
-        std::cout<<clk_<<" isreadcopy "<<pending_cp_q_.size()<<std::endl;
+        //std::cout<<clk_<<" isreadcopy "<<pending_cp_q_.size()<<std::endl;
         auto num_copys = pending_cp_q_.count(cmd.hex_addr);
         if (num_copys == 0) {
             std::cerr << cmd.hex_addr << " not in copy queue! " << std::endl;
@@ -407,10 +402,56 @@ void Controller::IssueCommand(const Command &cmd) {
         // if writecopy
         // state update to wait writecopy
         InCopyFlagDown();
-        std::cout<<"writecopy"<<std::endl;
+        std::cout<<"issue writecopy"<<std::endl;
     }
     // must update stats before states (for row hits)
     UpdateCommandStats(cmd);
+    switch(cmd.cmd_type){
+        case CommandType::READ:
+            std::cout<<"read"<<std::endl;
+            break;
+        case CommandType::READ_PRECHARGE:
+            std::cout<<"read_precharge"<<std::endl;
+            break;
+        case CommandType::READCOPY:
+            std::cout<<"readcopy"<<std::endl;
+            break;
+        case CommandType::READCOPY_PRECHARGE:
+            std::cout<<"readcopy_precharge"<<std::endl;
+            break;
+        case CommandType::WRITE:
+            std::cout<<"write"<<std::endl;
+            break;
+        case CommandType::WRITE_PRECHARGE:
+            std::cout<<"write_precharge"<<std::endl;
+            break;
+        case CommandType::WRITECOPY:
+            std::cout<<"writecopy"<<std::endl;
+            break;
+        case CommandType::WRITECOPY_PRECHARGE:
+            std::cout<<"writecopy_precharge"<<std::endl;
+            break;
+        case CommandType::ACTIVATE:
+            std::cout<<"activate"<<std::endl;
+            break;
+        case CommandType::PRECHARGE:
+            std::cout<<"precharge"<<std::endl;
+            break;
+        case CommandType::REFRESH:
+            std::cout<<"refresh"<<std::endl;
+            break;
+        case CommandType::REFRESH_BANK:
+            std::cout<<"refresh_bank"<<std::endl;
+            break;
+        case CommandType::SREF_ENTER:
+            std::cout<<"sref_enter"<<std::endl;
+            break;
+        case CommandType::SREF_EXIT:
+            std::cout<<"sref_exit"<<std::endl;
+            break;
+        case CommandType::SIZE:
+            std::cout<<"error"<<std::endl;
+    }
     channel_state_.UpdateTimingAndStates(cmd, clk_);
     // TODO : update timing (calculation...OTL)
 }

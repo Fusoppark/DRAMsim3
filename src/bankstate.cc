@@ -127,7 +127,6 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                         break;
                     }
                      */
-                    required_type = CommandType::ACTIVATE;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -235,6 +234,7 @@ void BankState::UpdateState(const Command& cmd) {
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
                     state_ = State::OPEN;
+                    break;
                 case CommandType::SREF_EXIT:
                 case CommandType::READ:
                 case CommandType::WRITE:
@@ -251,6 +251,7 @@ void BankState::UpdateState(const Command& cmd) {
                 default:
                     AbruptExit(__FILE__, __LINE__);
             }
+            break;
         default:
             AbruptExit(__FILE__, __LINE__);
     }
