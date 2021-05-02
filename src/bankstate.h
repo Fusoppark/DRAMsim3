@@ -24,7 +24,8 @@ class BankState {
     int RowHitCount() const { return row_hit_count_; }
 
     // rowclone added
-    void StartWaitWriteCopy() {state_ = State::WAIT_WRITECOPY;}
+    void StartWaitWriteCopy(const Command& cmd);
+    bool isRightCommand(const Command& cmd) const;
 
    private:
     // Current state of the Bank
@@ -42,6 +43,7 @@ class BankState {
 
     // rowcloe added
     Command waiting_command_;
+    State wait_prev_state_; // state before going into wait_writecopy state
 };
 
 }  // namespace dramsim3

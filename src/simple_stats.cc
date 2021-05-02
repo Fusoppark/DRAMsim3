@@ -22,7 +22,7 @@ SimpleStats::SimpleStats(const Config& config, int channel_id)
     InitStat("num_cycles", "counter", "Number of DRAM cycles");
     InitStat("epoch_num", "counter", "Number of epochs");
     InitStat("num_reads_done", "counter", "Number of read requests issued");
-    InitStat("num_writes_done", "counter", "Number of read requests issued");
+    InitStat("num_writes_done", "counter", "Number of write requests issued");
     InitStat("num_write_buf_hits", "counter", "Number of write buffer hits");
     InitStat("num_read_row_hits", "counter", "Number of read row buffer hits");
     InitStat("num_write_row_hits", "counter",
@@ -42,6 +42,7 @@ SimpleStats::SimpleStats(const Config& config, int channel_id)
     // rowclone added
     InitStat("num_read_copy_cmds", "counter", "Number of READCOPY commands");
     InitStat("num_write_copy_cmds", "counter", "Number of WRITECOPY commands");
+    InitStat("num_copies_done", "counter", "Number of copy requests issued");
 
     // double stats
     InitStat("act_energy", "double", "Activation energy");

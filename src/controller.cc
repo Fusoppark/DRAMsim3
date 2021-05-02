@@ -49,7 +49,10 @@ std::pair<AddressPair, int> Controller::ReturnDoneTrans(uint64_t clk) {
         if (clk >= it->complete_cycle) {
             if (it->is_write) {
                 simple_stats_.Increment("num_writes_done");
-            } else {
+            } else if (it->is_copy){
+                simple_stats_.Increment("num_copies_done");
+            }
+            else {
                 simple_stats_.Increment("num_reads_done");
                 simple_stats_.AddValue("read_latency", clk_ - it->added_cycle);
             }
@@ -327,7 +330,7 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cout<<"write_precharge"<<std::endl;
             break;
         case CommandType::WRITECOPY:
-            std::cout<<"writecopy "<<source.rank<<" "<<source.bankgroup<<" "<<source.bank<<std::endl;
+            std::cout<<"writecopy "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
             break;
         case CommandType::WRITECOPY_PRECHARGE:
             std::cout<<"writecopy_precharge"<<std::endl;

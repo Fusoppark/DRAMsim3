@@ -258,7 +258,7 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
             Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
             //std::cout<<"get"<<std::endl;
             if (!cmd.IsValid()) {
-                std::cout << "not valid" << std::endl;
+                //std::cout << "not valid" << std::endl;
                 return Command();
             }
             //std::cout<<"return command"<<std::endl;

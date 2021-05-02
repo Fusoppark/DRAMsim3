@@ -158,7 +158,7 @@ void ChannelState::UpdateState(const Command& cmd) {
             if(!cmd.isFPM){
                 //std::cout<<"have to make wait"<<std::endl;
                 auto dest_address = config_.AddressMapping(cmd.hex_addr.dest_addr);
-                bank_states_[dest_address.rank][dest_address.bankgroup][dest_address.bank].StartWaitWriteCopy();
+                bank_states_[dest_address.rank][dest_address.bankgroup][dest_address.bank].StartWaitWriteCopy(cmd);
             }
             // if not FPM? (same bank copy!?)
         }
