@@ -30,6 +30,7 @@ class CommandQueue {
     // Rowclone added
     bool DeleteLastCommand(Command cmd);
     void InCopyFlagDown();
+    void EraseCOPYCommand(const Command& cmd);
 
    private:
     bool ArbitratePrecharge(const CMDIterator& cmd_it,

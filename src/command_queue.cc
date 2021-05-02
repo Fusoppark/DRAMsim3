@@ -73,6 +73,9 @@ Command CommandQueue::GetCommandToIssue() {
             if (cmd.IsReadWrite()) {
                 EraseRWCommand(cmd);
             }
+            else if(cmd.IsReadCopy() || cmd.IsWriteCopy()){
+                EraseCOPYCommand(cmd);
+            }
             //std::cout<<clk_<<" getcommand"<<std::endl;
             //std::cout<<"read: "<<cmd.IsRead()<<" write: "<<cmd.IsWrite()<<" readcopy: "<<cmd.IsReadCopy()<< \
             " writecopy: "<<cmd.IsWriteCopy()<<" refresh: "<<cmd.IsRefresh()<<std::endl;
@@ -320,6 +323,19 @@ void CommandQueue::EraseRWCommand(const Command& cmd) {
         }
     }
     std::cerr << "cannot find cmd!" << std::endl;
+    exit(1);
+}
+
+void CommandQueue::EraseCOPYCommand(const Command& cmd){
+    auto& queue = GetQueue(cmd.Rank(), cmd.Bankgroup(), cmd.Bank());
+    for(auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++){
+        if(cmd.hex_addr.src_addr == cmd_it->hex_addr.src_addr && cmd.hex_addr.dest_addr == cmd_it->hex_addr.dest_addr &&\
+            cmd.cmd_type == cmd_it->cmd_type){
+                queue.erase(cmd_it);
+                return;
+            }
+    }
+    std::cerr<<"cannot find cmd!"<<std::endl;
     exit(1);
 }
 

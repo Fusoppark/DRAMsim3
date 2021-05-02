@@ -305,7 +305,7 @@ void Controller::IssueCommand(const Command &cmd) {
 #endif  // THERMAL
 
     // to get to know command's type
-    /*
+    
     std::cout<<clk_<<" ";
     switch(cmd.cmd_type){
         case CommandType::READ:
@@ -315,7 +315,7 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cout<<"read_precharge"<<std::endl;
             break;
         case CommandType::READCOPY:
-            std::cout<<"readcopy"<<std::endl;
+            std::cout<<"readcopy "<<cmd.hex_addr.src_addr<<" "<<cmd.hex_addr.dest_addr<<std::endl;
             break;
         case CommandType::READCOPY_PRECHARGE:
             std::cout<<"readcopy_precharge"<<std::endl;
@@ -352,7 +352,7 @@ void Controller::IssueCommand(const Command &cmd) {
             break;
         case CommandType::SIZE:
             std::cout<<"error"<<std::endl;
-    }*/
+    }
     // if read/write, update pending queue and return queue
     if (cmd.IsRead()) {
         auto num_reads = pending_rd_q_.count(cmd.hex_addr);
@@ -387,7 +387,6 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cerr << cmd.hex_addr << " not in copy queue! " << std::endl;
             exit(1);
         }
-        std::cout<<clk_<<" :"<<num_copys<<std::endl;
         // if there are multiple reads pending return them all
         while (num_copys > 0) {
             auto it = pending_cp_q_.find(cmd.hex_addr);
@@ -406,52 +405,6 @@ void Controller::IssueCommand(const Command &cmd) {
     }
     // must update stats before states (for row hits)
     UpdateCommandStats(cmd);
-    switch(cmd.cmd_type){
-        case CommandType::READ:
-            std::cout<<"read"<<std::endl;
-            break;
-        case CommandType::READ_PRECHARGE:
-            std::cout<<"read_precharge"<<std::endl;
-            break;
-        case CommandType::READCOPY:
-            std::cout<<"readcopy"<<std::endl;
-            break;
-        case CommandType::READCOPY_PRECHARGE:
-            std::cout<<"readcopy_precharge"<<std::endl;
-            break;
-        case CommandType::WRITE:
-            std::cout<<"write"<<std::endl;
-            break;
-        case CommandType::WRITE_PRECHARGE:
-            std::cout<<"write_precharge"<<std::endl;
-            break;
-        case CommandType::WRITECOPY:
-            std::cout<<"writecopy"<<std::endl;
-            break;
-        case CommandType::WRITECOPY_PRECHARGE:
-            std::cout<<"writecopy_precharge"<<std::endl;
-            break;
-        case CommandType::ACTIVATE:
-            std::cout<<"activate"<<std::endl;
-            break;
-        case CommandType::PRECHARGE:
-            std::cout<<"precharge"<<std::endl;
-            break;
-        case CommandType::REFRESH:
-            std::cout<<"refresh"<<std::endl;
-            break;
-        case CommandType::REFRESH_BANK:
-            std::cout<<"refresh_bank"<<std::endl;
-            break;
-        case CommandType::SREF_ENTER:
-            std::cout<<"sref_enter"<<std::endl;
-            break;
-        case CommandType::SREF_EXIT:
-            std::cout<<"sref_exit"<<std::endl;
-            break;
-        case CommandType::SIZE:
-            std::cout<<"error"<<std::endl;
-    }
     channel_state_.UpdateTimingAndStates(cmd, clk_);
     // TODO : update timing (calculation...OTL)
 }
