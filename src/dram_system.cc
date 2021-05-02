@@ -143,7 +143,6 @@ bool JedecDRAMSystem::AddTransaction(AddressPair hex_addr, bool is_write) {
     assert(ok);
     if (ok) {
         Transaction trans = Transaction(hex_addr, is_write);
-        std::cout<<"ok to add transaction"<<std::endl;
         ctrls_[channel]->AddTransaction(trans);
     }
     last_req_clk_ = clk_;

@@ -305,7 +305,7 @@ void Controller::IssueCommand(const Command &cmd) {
 #endif  // THERMAL
 
     // to get to know command's type
-    
+    auto source = config_.AddressMapping(cmd.hex_addr.src_addr);
     std::cout<<clk_<<" ";
     switch(cmd.cmd_type){
         case CommandType::READ:
@@ -315,7 +315,7 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cout<<"read_precharge"<<std::endl;
             break;
         case CommandType::READCOPY:
-            std::cout<<"readcopy "<<cmd.hex_addr.src_addr<<" "<<cmd.hex_addr.dest_addr<<std::endl;
+            std::cout<<"readcopy "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
             break;
         case CommandType::READCOPY_PRECHARGE:
             std::cout<<"readcopy_precharge"<<std::endl;
@@ -327,16 +327,16 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cout<<"write_precharge"<<std::endl;
             break;
         case CommandType::WRITECOPY:
-            std::cout<<"writecopy"<<std::endl;
+            std::cout<<"writecopy "<<source.rank<<" "<<source.bankgroup<<" "<<source.bank<<std::endl;
             break;
         case CommandType::WRITECOPY_PRECHARGE:
             std::cout<<"writecopy_precharge"<<std::endl;
             break;
         case CommandType::ACTIVATE:
-            std::cout<<"activate"<<std::endl;
+            std::cout<<"activate "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
             break;
         case CommandType::PRECHARGE:
-            std::cout<<"precharge"<<std::endl;
+            std::cout<<"precharge "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
             break;
         case CommandType::REFRESH:
             std::cout<<"refresh"<<std::endl;
@@ -395,13 +395,13 @@ void Controller::IssueCommand(const Command &cmd) {
             pending_cp_q_.erase(it);
             num_copys -= 1;
         }
-        std::cout<<"issue command read copy"<<std::endl;
+        //std::cout<<"issue command read copy"<<std::endl;
     }
     else if(cmd.IsWriteCopy()){
         // if writecopy
         // state update to wait writecopy
         InCopyFlagDown();
-        std::cout<<"issue writecopy"<<std::endl;
+        //std::cout<<"issue writecopy"<<std::endl;
     }
     // must update stats before states (for row hits)
     UpdateCommandStats(cmd);

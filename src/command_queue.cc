@@ -222,7 +222,6 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
     // ---------------------------------------------------------------
     // RowClone added
     if(is_in_copy_){
-        //std::cout<<"isincopy"<<std::endl;
         unsigned cmd_idx = 0;
 
         //std::cout<<queue.size()<<std::endl;
@@ -244,7 +243,7 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
 
         if(cmd_idx < queue.size()){
             Command copy_temp = queue[cmd_idx];
-            for(unsigned i=cmd_idx; i > 0; i++){
+            for(unsigned i=cmd_idx; i > 0; i--){
                 queue[i] = queue[i-1];
             }
             queue[0] = copy_temp;
@@ -262,7 +261,7 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
                 std::cout << "not valid" << std::endl;
                 return Command();
             }
-            std::cout<<"return command"<<std::endl;
+            //std::cout<<"return command"<<std::endl;
             return cmd;
         }
         return Command();

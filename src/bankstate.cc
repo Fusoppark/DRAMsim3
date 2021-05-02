@@ -29,12 +29,12 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::READ_PRECHARGE:
                 case CommandType::WRITE:
                 case CommandType::WRITE_PRECHARGE:
-                    required_type = CommandType::ACTIVATE;
-                    break;
                 case CommandType::READCOPY: // Rowclone added
                 case CommandType::READCOPY_PRECHARGE:
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
+                    required_type = CommandType::ACTIVATE;
+                    break;
                 case CommandType::REFRESH:
                 case CommandType::REFRESH_BANK:
                 case CommandType::SREF_ENTER:
@@ -53,6 +53,10 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::READ_PRECHARGE:
                 case CommandType::WRITE:
                 case CommandType::WRITE_PRECHARGE:
+                case CommandType::READCOPY: // Rowclone added
+                case CommandType::READCOPY_PRECHARGE:
+                case CommandType::WRITECOPY:
+                case CommandType::WRITECOPY_PRECHARGE:
                     if (cmd.Row() == open_row_) {
                         required_type = cmd.cmd_type;
                     } else {
@@ -63,12 +67,6 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::REFRESH_BANK:
                 case CommandType::SREF_ENTER:
                     required_type = CommandType::PRECHARGE;
-                    break;
-                case CommandType::READCOPY: //Rowclone added
-                case CommandType::READCOPY_PRECHARGE:
-                case CommandType::WRITECOPY:
-                case CommandType::WRITECOPY_PRECHARGE:
-                    required_type = cmd.cmd_type;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -127,6 +125,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                         break;
                     }
                      */
+                    required_type = cmd.cmd_type;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -194,8 +193,6 @@ void BankState::UpdateState(const Command& cmd) {
                 case CommandType::READCOPY_PRECHARGE:
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    state_ = State::OPEN;
-                    break;
                 case CommandType::READ:
                 case CommandType::WRITE:
                 case CommandType::READ_PRECHARGE:

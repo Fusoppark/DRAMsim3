@@ -154,12 +154,13 @@ void ChannelState::UpdateState(const Command& cmd) {
             BankNeedRefresh(cmd.Rank(), cmd.Bankgroup(), cmd.Bank(), false);
         } else if (cmd.IsReadCopy()){
             // make dest bank WAIT WRITECOPY
-            std::cout<<"making wait"<<std::endl;
+            //std::cout<<"making wait"<<std::endl;
             if(!cmd.isFPM){
-                std::cout<<"have to make wait"<<std::endl;
+                //std::cout<<"have to make wait"<<std::endl;
                 auto dest_address = config_.AddressMapping(cmd.hex_addr.dest_addr);
                 bank_states_[dest_address.rank][dest_address.bankgroup][dest_address.bank].StartWaitWriteCopy();
             }
+            // if not FPM? (same bank copy!?)
         }
     }
     return;
