@@ -31,13 +31,14 @@ class CommandQueue {
     bool DeleteLastCommand(Command cmd);
     void InCopyFlagDown();
     void EraseCOPYCommand(const Command& cmd);
+    void printFlag();
 
    private:
     bool ArbitratePrecharge(const CMDIterator& cmd_it,
                             const CMDQueue& queue) const;
     bool HasRWDependency(const CMDIterator& cmd_it,
                          const CMDQueue& queue) const;
-    Command GetFirstReadyInQueue(CMDQueue& queue) const;
+    Command GetFirstReadyInQueue(CMDQueue& queue);
     int GetQueueIndex(int rank, int bankgroup, int bank) const;
     CMDQueue& GetQueue(int rank, int bankgroup, int bank);
     CMDQueue& GetNextQueue();

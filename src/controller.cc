@@ -151,6 +151,7 @@ void Controller::ClockTick() {
     clk_++;
     cmd_queue_.ClockTick();
     simple_stats_.Increment("num_cycles");
+    //cmd_queue_.printFlag();
     //std::cout<<clk_<<" end"<<std::endl;
     return;
 }
@@ -263,6 +264,7 @@ void Controller::ScheduleTransaction() {
             auto cmds = CopyTransToCommand(*it);
             auto cmd_read = cmds.first;
             auto cmd_write = cmds.second;
+            //cmd_write.addr.rank = cmd_read.addr.rank;
             if(cmd_queue_.WillAcceptCommand(cmd_read.Rank(), cmd_read.Bankgroup(), cmd_read.Bank()) \
                 && cmd_queue_.WillAcceptCommand(cmd_write.Rank(), cmd_write.Bankgroup(), cmd_write.Bank(), 1)){
                 // TODO: write_draining_ 수정하기
@@ -271,6 +273,7 @@ void Controller::ScheduleTransaction() {
                     break;
                 }
 
+                //std::cout<<cmd_read.addr.rank<<" "<<cmd_write.addr.rank<<std::endl;
                 cmd_queue_.AddCommand(cmd_read);
                 cmd_queue_.AddCommand(cmd_write);
                 //std::cout<<clk_<<" "<<cmd_read.hex_addr.src_addr<<" added "<<cmd_write.hex_addr.dest_addr<<std::endl;
@@ -330,7 +333,7 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cout<<"write_precharge"<<std::endl;
             break;
         case CommandType::WRITECOPY:
-            std::cout<<"writecopy "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
+            std::cout<<source.rank<<" "<<source.bankgroup<<" "<<source.bank<<" writecopy "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
             break;
         case CommandType::WRITECOPY_PRECHARGE:
             std::cout<<"writecopy_precharge"<<std::endl;

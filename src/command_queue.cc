@@ -63,6 +63,7 @@ Command CommandQueue::GetCommandToIssue() {
             copy_address_pair_ = cmd.hex_addr;
             auto addr = config_.AddressMapping(cmd.hex_addr.dest_addr);
             queue_idx_ = GetQueueIndex(addr.rank, addr.bankgroup, addr.bank) - 1;
+            // make write bank wait
         }
 
         // ---------------------------------------------------------------------------
@@ -219,12 +220,12 @@ CMDQueue& CommandQueue::GetQueue(int rank, int bankgroup, int bank) {
     return queues_[index];
 }
 
-Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
+Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) {
     //std::cout<<clk_<<" getfirtstreadyinqueue"<<std::endl;
 
     // ---------------------------------------------------------------
     // RowClone added
-    if(is_in_copy_){
+    /*if(is_in_copy_){
         unsigned cmd_idx = 0;
 
         //std::cout<<queue.size()<<std::endl;
@@ -244,17 +245,17 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
         //std::cout<<"found one"<<std::endl;
         // move copy cmd to the front
 
-        if(cmd_idx < queue.size()){
+        /**if(cmd_idx < queue.size()){
             Command copy_temp = queue[cmd_idx];
             for(unsigned i=cmd_idx; i > 0; i--){
                 queue[i] = queue[i-1];
             }
             queue[0] = copy_temp;
-        }
+        }*/
 
         //std::cout<<"checks valid"<<std::endl;
         // only checks if cmd is valid
-        if(queue.size() != 0){
+        /*if(queue.size() != 0){
             auto cmd_it = queue.begin();
             //std::cout << (*cmd_it) << std::endl;
             //std::cout<<"begin : ";
@@ -268,23 +269,22 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
             return cmd;
         }
         return Command();
-    }
+    }*/
 
     // -------------------------------------------------------------------
     //std::cout<<"original"<<std::endl;
 
     for (auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++) {
         if (rank_state_[cmd_it->addr.rank]){
-            // same address pair?
-            if(!(rank_address_pair_[cmd_it->addr.rank] == cmd_it->hex_addr && \
-                (cmd_it->cmd_type == CommandType::READCOPY || cmd_it->cmd_type == CommandType::READ_PRECHARGE))){
-                // can not be issued
+            // only readwrite copy on that rank
+            if(!(rank_address_pair_[cmd_it->addr.rank].src_addr == cmd_it->hex_addr.src_addr && \
+                rank_address_pair_[cmd_it->addr.rank].dest_addr == cmd_it->hex_addr.dest_addr)){
                 continue;
             }
         }
         else{
-            // only readcopy can be issued (no writecopy)
-            if(cmd_it->cmd_type == CommandType::WRITECOPY && cmd_it->cmd_type == CommandType::WRITECOPY_PRECHARGE){
+            // except writecopy
+            if(cmd_it->cmd_type == CommandType::WRITECOPY || cmd_it->cmd_type == CommandType::WRITECOPY_PRECHARGE){
                 continue;
             }
         }
@@ -301,7 +301,7 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
                 continue;
             }
         } else if (cmd.IsWriteCopy()){
-            continue;
+            rank_state_[cmd.addr.rank] = false;
         } else if (cmd.IsReadCopy()){
             // check bank same or not
             //std::cout<<clk_<<" isreadcopy"<<std::endl;
@@ -325,8 +325,10 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
             }
             //std::cout<<clk_<<" readcopy issue"<<std::endl;
         }
-        rank_state_[cmd_it->addr.rank] = true;
-        rank_address_pair_[cmd_it->addr.rank] = AddressPair(cmd_it->hex_addr.src_addr, cmd_it->hex_addr.dest_addr);
+        if(cmd_it->cmd_type == CommandType::READCOPY || cmd_it->cmd_type == CommandType::READCOPY_PRECHARGE){
+            rank_state_[cmd_it->addr.rank] = true;
+            rank_address_pair_[cmd_it->addr.rank] = AddressPair(cmd_it->hex_addr.src_addr, cmd_it->hex_addr.dest_addr);
+        }
         return cmd;
     }
     return Command();
@@ -377,6 +379,14 @@ bool CommandQueue::HasRWDependency(const CMDIterator& cmd_it,
         }
     }
     return false;
+}
+
+void CommandQueue::printFlag(){
+    std::cout<<clk_<<" ";
+    for(int i=0;i<config_.ranks;i++){
+        std::cout<<rank_state_[i]<<" ";
+    }
+    std::cout<<std::endl;
 }
 
 }  // namespace dramsim3

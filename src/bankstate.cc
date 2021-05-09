@@ -33,12 +33,9 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::READCOPY_PRECHARGE:
                     required_type = CommandType::ACTIVATE;
                     break;
-                
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    if(isRightCommand(cmd)){
-                        required_type = CommandType::ACTIVATE;
-                    }
+                    required_type = CommandType::ACTIVATE;
                     break;
                 case CommandType::REFRESH:
                 case CommandType::REFRESH_BANK:
@@ -68,13 +65,11 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                     break;
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    if(isRightCommand(cmd)){
-                        if (cmd.Row() == open_row_) {
-                            required_type = cmd.cmd_type;
-                        } else {
-                            required_type = CommandType::PRECHARGE;
-                        }
-                    }
+                    /*if (cmd.Row() == open_row_) {
+                        required_type = cmd.cmd_type;
+                    } else {
+                        required_type = CommandType::PRECHARGE;
+                    }*/
                     break;
                 case CommandType::REFRESH:
                 case CommandType::REFRESH_BANK:
@@ -100,9 +95,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                     break;
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    if(isRightCommand(cmd)){
-                        required_type = CommandType::SREF_EXIT;
-                    }
+                    required_type = CommandType::SREF_EXIT;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -128,7 +121,7 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
                     // if this wait is for current command, or not
-                    if(isRightCommand(cmd)){
+                    /*if(isRightCommand(cmd)){
                         std::cout<<"yea"<<std::endl;
                         // can start WRITECOPY
                         switch(wait_prev_state_){
@@ -158,6 +151,8 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                         // cannot do anything
                         break;
                     }
+                    break;*/
+                    required_type = cmd.cmd_type;
                     break;
                 default:
                     std::cerr << "Unknown type!" << std::endl;
@@ -274,16 +269,18 @@ void BankState::UpdateState(const Command& cmd) {
         case State::WAIT_WRITECOPY: // only activate, precharge
             switch(cmd.cmd_type){
                 case CommandType::ACTIVATE:
-                    state_ = State::OPEN;
+                    /*state_ = State::OPEN;
                     open_row_ = cmd.Row();
-                    break;
+                    break;*/
                 case CommandType::PRECHARGE:
-                    state_ = State::CLOSED;
+                    /*state_ = State::CLOSED;
                     open_row_ = -1;
                     row_hit_count_ = 0;
-                    break;
+                    break;*/
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
+                    row_hit_count_++;
+                    break;
                 case CommandType::SREF_EXIT:
                 case CommandType::READ:
                 case CommandType::WRITE:
