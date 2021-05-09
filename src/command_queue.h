@@ -60,6 +60,8 @@ class CommandQueue {
     // RowClone added
     bool is_in_copy_;                       // Flag goes up when READCOPY is going to be issued, goes down when WRITECOPY is issued(IssueCopy)
     AddressPair copy_address_pair_;         // Stores src, dest address of issued READCOPY. Use to find pair WRITECOPY of READCOPY
+    std::vector<bool> rank_state_;          // Checking flags that current rank is in copy or not.
+    std::vector<AddressPair> rank_address_pair_;
     // -------------------------------------------------
 
     int num_queues_;

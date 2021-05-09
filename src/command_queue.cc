@@ -33,6 +33,9 @@ CommandQueue::CommandQueue(int channel_id, const Config& config,
         cmd_queue.reserve(config_.cmd_queue_size);
         queues_.push_back(cmd_queue);
     }
+    // init rank_state_ : size (# of ranks) : value (false)
+    rank_state_.assign(config_.ranks, false);
+    rank_address_pair_.assign(config_.ranks, AddressPair());
 }
 
 Command CommandQueue::GetCommandToIssue() {
@@ -271,6 +274,20 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
     //std::cout<<"original"<<std::endl;
 
     for (auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++) {
+        if (rank_state_[cmd_it->addr.rank]){
+            // same address pair?
+            if(!(rank_address_pair_[cmd_it->addr.rank] == cmd_it->hex_addr && \
+                (cmd_it->cmd_type == CommandType::READCOPY || cmd_it->cmd_type == CommandType::READ_PRECHARGE))){
+                // can not be issued
+                continue;
+            }
+        }
+        else{
+            // only readcopy can be issued (no writecopy)
+            if(cmd_it->cmd_type == CommandType::WRITECOPY && cmd_it->cmd_type == CommandType::WRITECOPY_PRECHARGE){
+                continue;
+            }
+        }
         Command cmd = channel_state_.GetReadyCommand(*cmd_it, clk_);
         if (!cmd.IsValid()) {
             continue;
@@ -308,6 +325,8 @@ Command CommandQueue::GetFirstReadyInQueue(CMDQueue& queue) const {
             }
             //std::cout<<clk_<<" readcopy issue"<<std::endl;
         }
+        rank_state_[cmd_it->addr.rank] = true;
+        rank_address_pair_[cmd_it->addr.rank] = AddressPair(cmd_it->hex_addr.src_addr, cmd_it->hex_addr.dest_addr);
         return cmd;
     }
     return Command();
