@@ -274,6 +274,14 @@ void Controller::ScheduleTransaction() {
                 }
 
                 //std::cout<<cmd_read.addr.rank<<" "<<cmd_write.addr.rank<<std::endl;
+                if(cmd_read.addr.bankgroup == cmd_write.addr.bankgroup && cmd_read.addr.bank == cmd_write.addr.bank){
+                    cmd_read.isFPM = true;
+                    cmd_write.isFPM = true;
+                }
+                else{
+                    cmd_read.isFPM = false;
+                    cmd_write.isFPM = false;
+                }
                 cmd_queue_.AddCommand(cmd_read);
                 cmd_queue_.AddCommand(cmd_write);
                 //std::cout<<clk_<<" "<<cmd_read.hex_addr.src_addr<<" added "<<cmd_write.hex_addr.dest_addr<<std::endl;

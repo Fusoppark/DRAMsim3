@@ -281,6 +281,7 @@ void BankState::UpdateState(const Command& cmd) {
                     break;*/
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
+                    state_ = State::OPEN;
                     row_hit_count_++;
                     break;
                 case CommandType::SREF_EXIT:
