@@ -31,7 +31,21 @@ Config::Config(std::string config_file, std::string out_dir)
 }
 
 Address Config::AddressMapping(AddressPair hex_addr) const {
+
     hex_addr >>= shift_bits;
+    int channel = (hex_addr >> ch_pos) & ch_mask;
+    int rank = (hex_addr >> ra_pos) & ra_mask;
+    int bg = (hex_addr >> bg_pos) & bg_mask;
+    int ba = (hex_addr >> ba_pos) & ba_mask;
+    int ro = (hex_addr >> ro_pos) & ro_mask;
+    int co = (hex_addr >> co_pos) & co_mask;
+    return Address(channel, rank, bg, ba, ro, co);
+}
+
+Address Config::AddressMapping(uint64_t hex_addr) const {
+    //std::cout << std::bitset<64>(hex_addr) << " ";
+    hex_addr >>= shift_bits;
+    //std::cout << std::bitset<64>(hex_addr) << std::endl;
     int channel = (hex_addr >> ch_pos) & ch_mask;
     int rank = (hex_addr >> ra_pos) & ra_mask;
     int bg = (hex_addr >> bg_pos) & bg_mask;

@@ -35,13 +35,28 @@ void RandomCPU::ClockTick() {
 
 AddressPair RandomCPU::getRandomAddress(){
     uint64_t hex_addr = gen();
-    uint64_t mask = pow(2, conf_->ra_pos) - 1;
-    uint64_t uppermask = 0xffffffffffffffff;
-    uppermask = uppermask >> conf_->ra_pos;
-    uppermask = uppermask << conf_->ra_pos;
+
+    uint64_t channel_mask = conf_->ch_mask;
+    channel_mask = channel_mask << conf_->ch_pos;
+    channel_mask = channel_mask << conf_->shift_bits;
+
+    uint64_t rank_mask = conf_->ra_mask;
+    rank_mask = rank_mask << conf_->ra_pos;
+    rank_mask = rank_mask << conf_->shift_bits;
+
+    uint64_t uppermask = channel_mask | rank_mask;
+    uint64_t mask = ~uppermask;
 
     uint64_t src_addr = (hex_addr & uppermask) + (gen() & mask);
     uint64_t dest_addr = (hex_addr & uppermask) + (gen() & mask);
+
+    /*
+    Address temp1 = conf_->AddressMapping(src_addr);
+    Address temp2 = conf_->AddressMapping(dest_addr);
+    std::cout << "SRC : " << std::hex << src_addr << " / DST : " << dest_addr << std::endl;
+    std::cout << "SRC : " << temp1.rank << " " << temp1.bankgroup << " " << temp1.bank << " ";
+    std::cout <<  "/ DST : " << temp2.rank << " " << temp2.bankgroup << " " << temp2.bank << std::endl;
+     */
 
     return AddressPair(src_addr, dest_addr);
 }
