@@ -25,6 +25,7 @@ class BankState {
 
     // rowclone added
     void StartWaitWriteCopy(const Command& cmd);
+    void FPMWaitWritecopy(const Command& cmd);
     bool isRightCommand(const Command& cmd) const;
 
    private:

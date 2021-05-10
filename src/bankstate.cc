@@ -66,10 +66,9 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
                     if(cmd.isFPM){
-                        if (cmd.Row() == open_row_) {
+                        if(waiting_command_.addr.row == open_row_){
                             required_type = cmd.cmd_type;
-                        } else {
-                            required_type = CommandType::PRECHARGE;
+                            //if(cmd.addr.bank == 3){std::cout<<"here writecopy"<<std::endl;}
                         }
                     }
                     break;
@@ -320,6 +319,10 @@ void BankState::StartWaitWriteCopy(const Command& cmd) {
 bool BankState::isRightCommand(const Command& cmd) const{
     return (waiting_command_.hex_addr.src_addr == cmd.hex_addr.src_addr && \
                         waiting_command_.hex_addr.dest_addr == cmd.hex_addr.dest_addr);
+}
+
+void BankState::FPMWaitWritecopy(const Command &cmd) {
+    waiting_command_ = cmd;
 }
 
 }  // namespace dramsim3
