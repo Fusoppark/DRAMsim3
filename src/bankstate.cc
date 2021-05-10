@@ -71,6 +71,11 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                             //if(cmd.addr.bank == 3){std::cout<<"here writecopy"<<std::endl;}
                         }
                     }
+                    else{
+                        if(cmd.addr.row != open_row_){
+                            required_type = CommandType::PRECHARGE;
+                        }
+                    }
                     break;
                 case CommandType::REFRESH:
                 case CommandType::REFRESH_BANK:
@@ -323,6 +328,13 @@ bool BankState::isRightCommand(const Command& cmd) const{
 
 void BankState::FPMWaitWritecopy(const Command &cmd) {
     waiting_command_ = cmd;
+}
+
+bool BankState::CanStartWait(Address dest, uint64_t clk) const {
+    if (open_row_ == dest.row && state_ == State::OPEN){
+        return true;
+    }
+    return false;
 }
 
 }  // namespace dramsim3

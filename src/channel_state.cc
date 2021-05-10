@@ -76,19 +76,8 @@ void ChannelState::RankNeedRefresh(int rank, bool need) {
 // Rowclone added
 bool ChannelState::CanStartWait(const Command& cmd, uint64_t clk) const{
     // only called when read copy ( cmd -> write copy )
-    Command ready_cmd = bank_states_[cmd.Rank()][cmd.Bankgroup()][cmd.Bank()]
-                        .GetReadyCommand(cmd, clk);
-    if (!ready_cmd.IsValid()) {
-        //std::cout<<"ready_cmd is invalid"<<std::endl;
-        return false;
-    }
-    if (ready_cmd.cmd_type == CommandType::ACTIVATE) {
-        if (!ActivationWindowOk(ready_cmd.Rank(), clk)) {
-            return false;
-        }
-    }
-    //std::cout<<"canstartwait"<<std::endl;
-    return true;
+    auto dest = config_.AddressMapping(cmd.hex_addr.dest_addr);
+    return bank_states_[dest.rank][dest.bankgroup][dest.bank].CanStartWait(dest, clk);
 }
 
 

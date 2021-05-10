@@ -27,6 +27,7 @@ class BankState {
     void StartWaitWriteCopy(const Command& cmd);
     void FPMWaitWritecopy(const Command& cmd);
     bool isRightCommand(const Command& cmd) const;
+    bool CanStartWait(Address dest, uint64_t clk) const;
 
    private:
     // Current state of the Bank
