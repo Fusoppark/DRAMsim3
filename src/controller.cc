@@ -312,6 +312,7 @@ void Controller::IssueCommand(const Command &cmd) {
 
     // to get to know command's type
     auto source = config_.AddressMapping(cmd.hex_addr.src_addr);
+    auto dest = config_.AddressMapping(cmd.hex_addr.dest_addr);
     std::cout<<clk_<<" ";
     switch(cmd.cmd_type){
         case CommandType::READ:
@@ -321,7 +322,7 @@ void Controller::IssueCommand(const Command &cmd) {
             std::cout<<"read_precharge"<<std::endl;
             break;
         case CommandType::READCOPY:
-            std::cout<<"readcopy "<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<std::endl;
+            std::cout<<cmd.Rank()<<" "<<cmd.Bankgroup()<<" "<<cmd.Bank()<<" readcopy "<<dest.rank<<" "<<dest.bankgroup<<" "<<dest.bank<<std::endl;
             break;
         case CommandType::READCOPY_PRECHARGE:
             std::cout<<"readcopy_precharge"<<std::endl;

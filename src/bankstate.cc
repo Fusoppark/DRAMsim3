@@ -65,11 +65,13 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
                     break;
                 case CommandType::WRITECOPY:
                 case CommandType::WRITECOPY_PRECHARGE:
-                    /*if (cmd.Row() == open_row_) {
-                        required_type = cmd.cmd_type;
-                    } else {
-                        required_type = CommandType::PRECHARGE;
-                    }*/
+                    if(cmd.isFPM){
+                        if (cmd.Row() == open_row_) {
+                            required_type = cmd.cmd_type;
+                        } else {
+                            required_type = CommandType::PRECHARGE;
+                        }
+                    }
                     break;
                 case CommandType::REFRESH:
                 case CommandType::REFRESH_BANK:
