@@ -124,6 +124,13 @@ enum class CommandType {
     REFRESH,
     SREF_ENTER,
     SREF_EXIT,
+    READCOPY_FPM,                   // -- only used in timing
+    READCOPY_PSM,                   // -- only used in timing
+    READCOPY_PSM_PRECHARGE,                   // -- only used in timing
+    WRITECOPY_FPM,                  // -- only used in timing
+    WRITECOPY_PSM,                  // -- only used in timing
+    WRITECOPY_FPM_PRECHARGE,                  // -- only used in timing
+    WRITECOPY_PSM_PRECHARGE,                  // -- only used in timing
     SIZE
 };
 

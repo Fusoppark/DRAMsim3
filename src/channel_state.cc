@@ -161,6 +161,7 @@ void ChannelState::UpdateState(const Command& cmd) {
 }
 
 void ChannelState::UpdateTiming(const Command& cmd, uint64_t clk) {
+    CommandType copy_type;
     switch (cmd.cmd_type) {
         case CommandType::ACTIVATE:
             UpdateActivationTimes(cmd.Rank(), clk);
@@ -206,7 +207,23 @@ void ChannelState::UpdateTiming(const Command& cmd, uint64_t clk) {
         case CommandType::READCOPY_PRECHARGE:
         case CommandType::WRITECOPY:
         case CommandType::WRITECOPY_PRECHARGE:
-            break; //TODO : calculate timing and set all timings
+            if((cmd.cmd_type == CommandType::READCOPY) && (cmd.isFPM)){copy_type = CommandType::READCOPY_FPM;}
+            else if((cmd.cmd_type == CommandType::READCOPY) && (!cmd.isFPM)){copy_type = CommandType::READCOPY_PSM;}
+            else if((cmd.cmd_type == CommandType::READCOPY_PRECHARGE) && (cmd.isFPM)){copy_type = CommandType::READCOPY_FPM;}
+            else if((cmd.cmd_type == CommandType::READCOPY_PRECHARGE) && (!cmd.isFPM)){copy_type = CommandType::READCOPY_PSM_PRECHARGE;}
+            else if((cmd.cmd_type == CommandType::WRITECOPY) && (cmd.isFPM)){copy_type = CommandType::WRITECOPY_FPM;}
+            else if((cmd.cmd_type == CommandType::WRITECOPY) && (!cmd.isFPM)){copy_type = CommandType::WRITECOPY_PSM;}
+            else if((cmd.cmd_type == CommandType::WRITECOPY_PRECHARGE) && (cmd.isFPM)){copy_type = CommandType::WRITECOPY_FPM_PRECHARGE;}
+            else {copy_type = CommandType::WRITECOPY_PSM_PRECHARGE;}
+            // Same Bank
+            UpdateSameBankTiming(cmd.addr, timing_.same_bank[static_cast<int>(copy_type)],clk);
+            // Same Bankgroup other banks
+            UpdateOtherBanksSameBankgroupTiming(cmd.addr,timing_.other_banks_same_bankgroup[static_cast<int>(copy_type)],clk);
+            // Other bankgroups
+            UpdateOtherBankgroupsSameRankTiming(cmd.addr,timing_.other_bankgroups_same_rank[static_cast<int>(copy_type)],clk);
+            // Other ranks
+            UpdateOtherRanksTiming(cmd.addr, timing_.other_ranks[static_cast<int>(copy_type)],clk);
+            break;
         default:
             AbruptExit(__FILE__, __LINE__);
     }

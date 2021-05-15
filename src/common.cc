@@ -22,6 +22,13 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd) {
         "refresh",
         "self_refresh_enter",
         "self_refresh_exit",
+        "readcopy_FPM_timing",
+        "readcopy_PSM_timing",
+        "readcopy_PSM_precharge_timing",
+        "writecopy_FPM_timing",
+        "writecopy_PSM_timing",
+        "writecopy_FPM_PRECHARGE_timing",
+        "writecopy_PSM_PRECHARGE_timing",
         "WRONG"};
     os << fmt::format("{:<20} {:>3} {:>3} {:>3} {:>3} {:>#8x} {:>#8x}",
                       command_string[static_cast<int>(cmd.cmd_type)],

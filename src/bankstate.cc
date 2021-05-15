@@ -11,6 +11,15 @@ BankState::BankState()
     cmd_timing_[static_cast<int>(CommandType::READ_PRECHARGE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::WRITE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::WRITE_PRECHARGE)] = 0;
+
+    cmd_timing_[static_cast<int>(CommandType::READCOPY_FPM)] = 0;                   // ---- ROWCLONE ADDED
+    cmd_timing_[static_cast<int>(CommandType::READCOPY_PSM)] = 0;
+    cmd_timing_[static_cast<int>(CommandType::READCOPY_PSM_PRECHARGE)] = 0;
+    cmd_timing_[static_cast<int>(CommandType::WRITECOPY_FPM)] = 0;
+    cmd_timing_[static_cast<int>(CommandType::WRITECOPY_FPM_PRECHARGE)] = 0;
+    cmd_timing_[static_cast<int>(CommandType::WRITECOPY_PSM)] = 0;
+    cmd_timing_[static_cast<int>(CommandType::WRITECOPY_PSM_PRECHARGE)] = 0;        // ---- ROWCLONE ADDED
+    
     cmd_timing_[static_cast<int>(CommandType::ACTIVATE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::PRECHARGE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::REFRESH)] = 0;

@@ -17,6 +17,7 @@ class Timing {
         other_bankgroups_same_rank;
     std::vector<std::vector<std::pair<CommandType, int> > > other_ranks;
     std::vector<std::vector<std::pair<CommandType, int> > > same_rank;
+
 };
 
 }  // namespace dramsim3
