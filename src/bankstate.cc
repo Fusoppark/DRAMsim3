@@ -19,7 +19,7 @@ BankState::BankState()
     cmd_timing_[static_cast<int>(CommandType::WRITECOPY_FPM_PRECHARGE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::WRITECOPY_PSM)] = 0;
     cmd_timing_[static_cast<int>(CommandType::WRITECOPY_PSM_PRECHARGE)] = 0;        // ---- ROWCLONE ADDED
-    
+
     cmd_timing_[static_cast<int>(CommandType::ACTIVATE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::PRECHARGE)] = 0;
     cmd_timing_[static_cast<int>(CommandType::REFRESH)] = 0;
@@ -30,6 +30,7 @@ BankState::BankState()
 
 Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
     CommandType required_type = CommandType::SIZE;
+    CommandType copy_type = CommandType::SIZE;
     switch (state_) {
         case State::CLOSED:
             //std::cout << "Bank State : CLOSED" << std::endl;
@@ -184,21 +185,40 @@ Command BankState::GetReadyCommand(const Command& cmd, uint64_t clk) const {
     }
 
     if (required_type != CommandType::SIZE) {
-        if (clk >= cmd_timing_[static_cast<int>(required_type)]) {
-            /*switch(cmd.cmd_type){
-                case CommandType::READCOPY:
-                case CommandType::READCOPY_PRECHARGE:
-                    std::cout<<"READCOPY ";
-                    break;
-                case CommandType::WRITECOPY:
-                case CommandType::WRITECOPY_PRECHARGE:
-                    std::cout<<"WRITECOPY ";
-                    break;
-                default:
-                    std::cout<<"ELSE ";
-                    break;
-            }*/
-            return Command(required_type, cmd.addr, cmd.hex_addr);
+        if((required_type == CommandType::READCOPY) || (required_type == CommandType::WRITECOPY) ||
+                (required_type == CommandType::READCOPY_PRECHARGE) ||(required_type == CommandType::WRITECOPY_PRECHARGE)){
+
+            if((required_type == CommandType::READCOPY) && (cmd.isFPM)){copy_type = CommandType::READCOPY_FPM;}
+            else if((required_type == CommandType::READCOPY) && (!cmd.isFPM)){copy_type = CommandType::READCOPY_PSM;}
+            else if((required_type == CommandType::READCOPY_PRECHARGE) && (cmd.isFPM)){copy_type = CommandType::READCOPY_FPM;}
+            else if((required_type == CommandType::READCOPY_PRECHARGE) && (!cmd.isFPM)){copy_type = CommandType::READCOPY_PSM_PRECHARGE;}
+            else if((required_type == CommandType::WRITECOPY) && (cmd.isFPM)){copy_type = CommandType::WRITECOPY_FPM;}
+            else if((required_type == CommandType::WRITECOPY) && (!cmd.isFPM)){copy_type = CommandType::WRITECOPY_PSM;}
+            else if((required_type == CommandType::WRITECOPY_PRECHARGE) && (cmd.isFPM)){copy_type = CommandType::WRITECOPY_FPM_PRECHARGE;}
+            else {copy_type = CommandType::WRITECOPY_PSM_PRECHARGE;}
+
+            if (clk >= cmd_timing_[static_cast<int>(copy_type)]) {
+                return Command(required_type, cmd.addr, cmd.hex_addr);
+            }
+
+        }
+        else{
+            if (clk >= cmd_timing_[static_cast<int>(required_type)]) {
+                /*switch(cmd.cmd_type){
+                    case CommandType::READCOPY:
+                    case CommandType::READCOPY_PRECHARGE:
+                        std::cout<<"READCOPY ";
+                        break;
+                    case CommandType::WRITECOPY:
+                    case CommandType::WRITECOPY_PRECHARGE:
+                        std::cout<<"WRITECOPY ";
+                        break;
+                    default:
+                        std::cout<<"ELSE ";
+                        break;
+                }*/
+                return Command(required_type, cmd.addr, cmd.hex_addr);
+            }
         }
     }
     return Command();
