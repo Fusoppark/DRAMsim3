@@ -114,9 +114,9 @@ Timing::Timing(const Config& config)
             {CommandType::READ_PRECHARGE, read_to_read_l},
             {CommandType::WRITE_PRECHARGE, read_to_write},
             {CommandType::PRECHARGE, read_to_precharge},
-            {CommandType::READCOPY_FPM, 0},             // Need to fill timing
-            {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-            {CommandType::READCOPY_PSM_PRECHARGE, 0}};            // Need to fill timing
+            {CommandType::READCOPY_FPM, read_to_read_l},             // Need to fill timing
+            {CommandType::READCOPY_PSM, read_to_read_l},             // Need to fill timing
+            {CommandType::READCOPY_PSM_PRECHARGE, read_to_read_l}};            // Need to fill timing
     other_banks_same_bankgroup[static_cast<int>(CommandType::READ)] =
         std::vector<std::pair<CommandType, int> >{
             {CommandType::READ, read_to_read_l},
@@ -153,9 +153,9 @@ Timing::Timing(const Config& config)
             {CommandType::READ_PRECHARGE, write_to_read_l},
             {CommandType::WRITE_PRECHARGE, write_to_write_l},
             {CommandType::PRECHARGE, write_to_precharge},
-            {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-            {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-            {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+            {CommandType::READCOPY_FPM, write_to_read_l},           // Need to fill timing
+            {CommandType::READCOPY_PSM, write_to_read_l},             // Need to fill timing
+            {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_l}};
     other_banks_same_bankgroup[static_cast<int>(CommandType::WRITE)] =
         std::vector<std::pair<CommandType, int> >{
             {CommandType::READ, write_to_read_l},
@@ -259,7 +259,7 @@ Timing::Timing(const Config& config)
     // command READCOPY_FPM
     same_bank[static_cast<int>(CommandType::READCOPY_FPM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::WRITECOPY_FPM, 0}};
+                    {CommandType::WRITECOPY_FPM, read_to_write}};
     other_banks_same_bankgroup[static_cast<int>(CommandType::READCOPY_FPM)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::WRITECOPY_FPM, 0}};
@@ -274,21 +274,21 @@ Timing::Timing(const Config& config)
     // command READCOPY_PSM
     same_bank[static_cast<int>(CommandType::READCOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE, 0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0},        // Need to fill timing
-                    {CommandType::WRITECOPY_PSM, 0}};
+                    {CommandType::READ, read_to_read_l},
+                    {CommandType::WRITE, read_to_write},
+                    {CommandType::READ_PRECHARGE, read_to_read_l},
+                    {CommandType::WRITE_PRECHARGE, read_to_write},
+                    {CommandType::PRECHARGE, read_to_precharge},
+                    {CommandType::READCOPY_FPM, read_to_read_l},             // Need to fill timing
+                    {CommandType::READCOPY_PSM, read_to_read_l},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, read_to_read_l},
+                    {CommandType::WRITECOPY_PSM, 0}};// Need to fill timing
     other_banks_same_bankgroup[static_cast<int>(CommandType::READCOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::WRITECOPY_PSM, 0}};
+                    {CommandType::WRITECOPY_PSM, read_to_write}};
     other_bankgroups_same_rank[static_cast<int>(CommandType::READCOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::WRITECOPY_PSM, 0}};
+                    {CommandType::WRITECOPY_PSM, read_to_write}};
     other_ranks[static_cast<int>(CommandType::READCOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::WRITECOPY_PSM, 0}};
@@ -296,17 +296,16 @@ Timing::Timing(const Config& config)
     // command READCOPY_PSM_PRECHARGE
     same_bank[static_cast<int>(CommandType::READCOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::ACTIVATE, 0},
-                    {CommandType::REFRESH, 0},
-                    {CommandType::REFRESH_BANK, 0},
-                    {CommandType::SREF_ENTER, 0},         // Need to fill timing
-                    {CommandType::WRITECOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::ACTIVATE, readp_to_act},
+                    {CommandType::REFRESH, read_to_activate},
+                    {CommandType::REFRESH_BANK, read_to_activate},
+                    {CommandType::SREF_ENTER, read_to_activate}};
     other_banks_same_bankgroup[static_cast<int>(CommandType::READCOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::WRITECOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_bankgroups_same_rank[static_cast<int>(CommandType::READCOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::WRITECOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_ranks[static_cast<int>(CommandType::READCOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::WRITECOPY_PSM_PRECHARGE, 0}};
@@ -315,14 +314,16 @@ Timing::Timing(const Config& config)
     // command WRITECOPY_FPM
     same_bank[static_cast<int>(CommandType::WRITECOPY_FPM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE, 0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::READ, write_to_read_l},
+                    {CommandType::WRITE, write_to_write_l},
+                    {CommandType::READ_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITE_PRECHARGE, write_to_write_l},
+                    {CommandType::PRECHARGE, write_to_precharge},
+                    {CommandType::READCOPY_FPM, write_to_read_l},           // Need to fill timing
+                    {CommandType::READCOPY_PSM, write_to_read_l},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITECOPY_PSM, write_to_write_l},
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, write_to_write_l}};
     other_banks_same_bankgroup[static_cast<int>(CommandType::WRITECOPY_FPM)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::READ, 0},
@@ -354,32 +355,38 @@ Timing::Timing(const Config& config)
     // command WRITECOPY_PSM
     same_bank[static_cast<int>(CommandType::WRITECOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE, 0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::READ, write_to_read_l},
+                    {CommandType::WRITE, write_to_write_l},
+                    {CommandType::READ_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITE_PRECHARGE, write_to_write_l},
+                    {CommandType::PRECHARGE, write_to_precharge},
+                    {CommandType::READCOPY_FPM, write_to_read_l},           // Need to fill timing
+                    {CommandType::READCOPY_PSM, write_to_read_l},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITECOPY_PSM, write_to_write_l},
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_banks_same_bankgroup[static_cast<int>(CommandType::WRITECOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE,0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::READ, write_to_read_l},
+                    {CommandType::WRITE, write_to_write_l},
+                    {CommandType::READ_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITE_PRECHARGE, write_to_write_l},
+                    {CommandType::READCOPY_FPM, write_to_read_l},           // Need to fill timing
+                    {CommandType::READCOPY_PSM, write_to_read_l},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITECOPY_PSM, write_to_write_l},
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_bankgroups_same_rank[static_cast<int>(CommandType::WRITECOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE, 0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::READ, write_to_read_s},
+                    {CommandType::WRITE, write_to_write_s},
+                    {CommandType::READ_PRECHARGE, write_to_read_s},
+                    {CommandType::WRITE_PRECHARGE, write_to_write_s},
+                    {CommandType::READCOPY_FPM, write_to_read_s},           // Need to fill timing
+                    {CommandType::READCOPY_PSM, write_to_read_s},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_s},
+                    {CommandType::WRITECOPY_PSM, write_to_write_s},
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_ranks[static_cast<int>(CommandType::WRITECOPY_PSM)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::READ, 0},
@@ -393,10 +400,10 @@ Timing::Timing(const Config& config)
     // command WRITE_FPM_PRECHARGE
     same_bank[static_cast<int>(CommandType::WRITECOPY_FPM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::ACTIVATE, 0},
-                    {CommandType::REFRESH, 0},
-                    {CommandType::REFRESH_BANK, 0},
-                    {CommandType::SREF_ENTER, 0}};
+                    {CommandType::ACTIVATE, write_to_activate},
+                    {CommandType::REFRESH, write_to_activate},
+                    {CommandType::REFRESH_BANK, write_to_activate},
+                    {CommandType::SREF_ENTER, write_to_activate}};
     other_banks_same_bankgroup[static_cast<int>(CommandType::WRITECOPY_FPM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::READ, 0},
@@ -428,29 +435,32 @@ Timing::Timing(const Config& config)
     // command WRITE_PSM_PRECHARGE
     same_bank[static_cast<int>(CommandType::WRITECOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::ACTIVATE, 0},
-                    {CommandType::REFRESH, 0},
-                    {CommandType::REFRESH_BANK, 0},
-                    {CommandType::SREF_ENTER, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::ACTIVATE, write_to_activate},
+                    {CommandType::REFRESH, write_to_activate},
+                    {CommandType::REFRESH_BANK, write_to_activate},
+                    {CommandType::SREF_ENTER, write_to_activate}};             // Need to fill timing
     other_banks_same_bankgroup[static_cast<int>(CommandType::WRITECOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE,0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::READ, write_to_read_l},
+                    {CommandType::WRITE, write_to_write_l},
+                    {CommandType::READ_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITE_PRECHARGE, write_to_write_l},
+                    {CommandType::READCOPY_FPM, write_to_read_l},           // Need to fill timing
+                    {CommandType::READCOPY_PSM, write_to_read_l},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_l},
+                    {CommandType::WRITECOPY_PSM, write_to_write_l},
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_bankgroups_same_rank[static_cast<int>(CommandType::WRITECOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
-                    {CommandType::READ, 0},
-                    {CommandType::WRITE, 0},
-                    {CommandType::READ_PRECHARGE, 0},
-                    {CommandType::WRITE_PRECHARGE, 0},
-                    {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-                    {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-                    {CommandType::READCOPY_PSM_PRECHARGE, 0}};
+                    {CommandType::READ, write_to_read_s},
+                    {CommandType::WRITE, write_to_write_s},
+                    {CommandType::READ_PRECHARGE, write_to_read_s},
+                    {CommandType::WRITE_PRECHARGE, write_to_write_s},
+                    {CommandType::READCOPY_FPM, write_to_read_s},           // Need to fill timing
+                    {CommandType::READCOPY_PSM, write_to_read_s},             // Need to fill timing
+                    {CommandType::READCOPY_PSM_PRECHARGE, write_to_read_s},
+                    {CommandType::WRITECOPY_PSM, write_to_write_s},
+                    {CommandType::WRITECOPY_PSM_PRECHARGE, read_to_write}};
     other_ranks[static_cast<int>(CommandType::WRITECOPY_PSM_PRECHARGE)] =
             std::vector<std::pair<CommandType, int> >{
                     {CommandType::READ, 0},
@@ -472,9 +482,13 @@ Timing::Timing(const Config& config)
             {CommandType::READ_PRECHARGE, activate_to_read},
             {CommandType::WRITE_PRECHARGE, activate_to_write},
             {CommandType::PRECHARGE, activate_to_precharge},
-            {CommandType::READCOPY_FPM, 0},           // Need to fill timing
-            {CommandType::READCOPY_PSM, 0},             // Need to fill timing
-            {CommandType::READCOPY_PSM_PRECHARGE, 0}
+            {CommandType::READCOPY_FPM,  activate_to_read},           // Need to fill timing
+            {CommandType::READCOPY_PSM, activate_to_read},             // Need to fill timing
+            {CommandType::READCOPY_PSM_PRECHARGE, activate_to_read},
+            {CommandType::WRITECOPY_FPM, activate_to_write},
+            {CommandType::WRITECOPY_FPM_PRECHARGE, activate_to_write},
+            {CommandType::WRITECOPY_PSM, activate_to_write},
+            {CommandType::WRITECOPY_PSM_PRECHARGE, activate_to_write},
         };
 
     other_banks_same_bankgroup[static_cast<int>(CommandType::ACTIVATE)] =
