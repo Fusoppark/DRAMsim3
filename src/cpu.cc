@@ -109,8 +109,11 @@ void StreamCPU::ClockTick() {
     // moving on to next set of arrays
     memory_system_.ClockTick();
     if (offset_ >= array_size_ || clk_ == 0) {
-        addr_a_ = gen();
-		addr_b_ = addr_a_ + stride_ * array_size_;
+        addr_a_ = 0;
+		addr_b_ = 8388608;
+		addr_c_ = 8454144;
+		b_offset = addr_b_;
+		c_offset = addr_c_;
        // addr_b_ = gen();
         //addr_c_ = gen();
         offset_ = 0;
@@ -118,8 +121,29 @@ void StreamCPU::ClockTick() {
 
     if (!inserted_a_ && counter < samples) {
         offset_ = (rand() % array_size_) * stride_;
-		AddressPair copy_addr_ = AddressPair(addr_a_ + offset_, addr_b_ + stride_*counter);
+		AddressPair copy_addr_ = AddressPair(addr_a_ + offset_);
 		copy_addr_.is_copy = true;
+		Address temp1 = conf_->AddressMapping(copy_addr_.src_addr);
+		if(temp1.rank == 0){
+			b_offset += stride_;
+			Address temp = conf_->AddressMapping(b_offset);
+			if(temp.rank != 0){
+				b_offset += pow(2, 16);
+			}
+			temp = conf_->AddressMapping(b_offset);
+			copy_addr_.dest_addr = b_offset;
+			//std::cout<<clk_<<" src: "<<temp1.rank<<" dest: "<<temp.rank<<std::endl;
+		}
+		else{
+			c_offset += stride_;
+			Address temp = conf_->AddressMapping(c_offset);
+			if(temp.rank != 1){
+				c_offset += pow(2, 16);
+			}
+			temp = conf_->AddressMapping(c_offset);
+			copy_addr_.dest_addr = c_offset;
+			//std::cout<<clk_<<" src: "<<temp1.rank<<" dest: "<<temp.rank<<std::endl;
+		}
 		if(memory_system_.WillAcceptTransaction(copy_addr_, false)){
 			memory_system_.AddTransaction(copy_addr_, false);
 			inserted_a_ = true;

@@ -65,9 +65,11 @@ class StreamCPU : public CPU {
     bool inserted_b_ = false;
     bool inserted_c_ = false;
     const uint64_t array_size_ = 100000;  // elements in array
-    const int stride_ = 8;					// stride in bytes
-	const uint64_t samples = 10;
+    const int stride_ = 64;					// stride in bytes
+	const uint64_t samples = 100;
 	int counter = 0;
+	uint64_t b_offset;
+	uint64_t c_offset;
 };
 
 class TraceBasedCPU : public CPU {

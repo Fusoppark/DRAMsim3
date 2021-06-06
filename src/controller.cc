@@ -188,7 +188,7 @@ bool Controller::AddTransaction(Transaction trans) {
     
     // RowClone added
     if(trans.is_copy){ // if the transaction is copy operation
-        if(pending_wr_q_.count(trans.addr) > 0){ // if src_addr write is in pending queue
+		if(pending_wr_q_.count(trans.addr) > 0){ // if src_addr write is in pending queue
             // write that value to dest_addr - change to write(dest_addr)
             Transaction new_trans = Transaction(trans.addr.dest_addr, true);
             if(is_unified_queue_){
@@ -252,7 +252,7 @@ void Controller::ScheduleTransaction() {
         }
     }
 
-
+	
     // row clone added (about copy_queue_)
     std::vector<Transaction> &queue =
         is_unified_queue_ ? unified_queue_
