@@ -1,5 +1,16 @@
 [![Build Status](https://travis-ci.com/umd-memsys/DRAMsim3.svg?branch=master)](https://travis-ci.com/umd-memsys/DRAMsim3)
 
+# What is Fusoppark / DRAMsim3 ?
+ - Dram Simulator [DRAMsim3](https://github.com/umd-memsys/DRAMsim3)에 Copy Operation을 구현한 프로젝트의 결과물입니다.
+ - 원래 프로젝트는 [이쪽](https://github.com/ChoSeokJu/DRAMsim3)으로, 이곳은 포트폴리오를 위해 따로 fork한 곳입니다.
+ 
+ ## Contribution of Fusoppark
+  - src/commandqueue.cc : Copy Operation은 ReadCopy 이후 바로 WriteCopy를 수행하도록 강제해야 합니다. 이를 강제하는 로직을 구현했습니다. 
+  - src/channelstate.cc : Copy Operation의 수행시간을 계산하기 위해 command를 구분하는 코드를 추가하였습니다.
+  - src/bankstate.cc : Copy Operation의 수행시간을 계산하기 위해 command를 구분하는 코드를 추가하였습니다.
+  - src/timing.cc : Copy Operation의 수행시간을 계산하기 위한 value들을 추가하였습니다.
+
+
 # What we have done...
 
 - `bankstate.cc` / `bankstate.h`
