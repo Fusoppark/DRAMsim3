@@ -15,7 +15,7 @@
 
 <hr/>
 
-# What we have done...
+# What we have done... : Readme.md of [Project](https://github.com/ChoSeokJu/DRAMsim3)
 
 - `bankstate.cc` / `bankstate.h`
 
@@ -151,7 +151,9 @@ DRAM에서 copy를 수행하는 Transaction으로 Rowclone에서 파생된 **Col
 
 현재 Copy transaction과 ReadCopy, WriteCopy command는 issue가 된다. 그러나 issue되는 시점에 오류가 있는데, 바로 DRAMsim3의 precharge 정책과 충돌하는 것이다. 
 
-# About DRAMsim3
+<hr/>
+
+# About DRAMsim3 : Readme.md of [DRAMsim3](https://github.com/umd-memsys/DRAMsim3)
 
 DRAMsim3 models the timing paramaters and memory controller behavior for several DRAM protocols such as DDR3, DDR4, LPDDR3, LPDDR4, GDDR5, GDDR6, HBM, HMC, STT-MRAM. It is implemented in C++ as an objected oriented model that includes a parameterized DRAM bank model, DRAM controllers, command queues and system-level interfaces to interact with a CPU simulator (GEM5, ZSim) or trace workloads. It is designed to be accurate, portable and parallel.
     
