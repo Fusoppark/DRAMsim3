@@ -10,7 +10,7 @@
   - src/bankstate.cc : Copy Operation의 수행시간을 계산하기 위해 command를 구분하는 코드를 추가하였습니다.
   - src/timing.cc : Copy Operation의 수행시간을 계산하기 위한 value들을 추가하였습니다.
 
- ## Detail
+ ## Contribution of Fusoppark (Detail)
   - 현재 작성 중입니다. 작성되는 대로 추가하겠습니다.
 
 
