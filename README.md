@@ -5,10 +5,14 @@
  - 원래 프로젝트는 [이쪽](https://github.com/ChoSeokJu/DRAMsim3)으로, 이곳은 포트폴리오를 위해 따로 fork한 곳입니다.
  
  ## Contribution of Fusoppark
-  - src/commandqueue.cc : Copy Operation은 ReadCopy 이후 바로 WriteCopy를 수행하도록 강제해야 합니다. 이를 강제하는 로직을 구현했습니다. 
+  - src/commandqueue.cc : Copy Operation은 ReadCopy 이후 바로 WriteCopy를 수행하도록 강제하는데, 이를 가능케하는 로직을 구현했습니다. 
   - src/channelstate.cc : Copy Operation의 수행시간을 계산하기 위해 command를 구분하는 코드를 추가하였습니다.
   - src/bankstate.cc : Copy Operation의 수행시간을 계산하기 위해 command를 구분하는 코드를 추가하였습니다.
   - src/timing.cc : Copy Operation의 수행시간을 계산하기 위한 value들을 추가하였습니다.
+
+ ## Detail
+  - 현재 작성 중입니다. 작성되는 대로 추가하겠습니다.
+
 
 
 # What we have done...
